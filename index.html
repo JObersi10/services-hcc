@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hack Club Curaçao — Digital Services</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red: #ec3750;
+      --red-dim: #c42d42;
+      --bg: #080808;
+      --bg2: #0f0f0f;
+      --bg3: #161616;
+      --surface: #1a1a1a;
+      --border: rgba(255,255,255,0.07);
+      --text: #f0f0f0;
+      --muted: #666;
+      --mid: #999;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ─── CURSOR ─── */
+    .cursor {
+      position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999;
+      mix-blend-mode: difference;
+    }
+    .cursor-dot {
+      width: 8px; height: 8px; background: #fff; border-radius: 50%;
+      position: absolute; transform: translate(-50%,-50%);
+      transition: width .15s, height .15s;
+    }
+    .cursor-ring {
+      width: 40px; height: 40px; border: 1.5px solid rgba(255,255,255,0.5);
+      border-radius: 50%; position: absolute;
+      transform: translate(-50%,-50%);
+      transition: width .3s cubic-bezier(.25,.1,.25,1),
+                  height .3s cubic-bezier(.25,.1,.25,1),
+                  opacity .3s;
+    }
+    body:hover .cursor-dot { width: 8px; height: 8px; }
+    body.cursor-hover .cursor-dot { width: 16px; height: 16px; }
+    body.cursor-hover .cursor-ring { width: 60px; height: 60px; opacity: 0; }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 24px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: linear-gradient(to bottom, rgba(8,8,8,.95) 0%, transparent 100%);
+      backdrop-filter: blur(0px);
+      transition: background .4s, backdrop-filter .4s;
+    }
+    nav.scrolled {
+      background: rgba(8,8,8,.88);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700; font-size: 1rem; letter-spacing: -.01em;
+      text-decoration: none; color: var(--text);
+    }
+    .nav-logo-flag {
+      width: 28px; height: 20px; border-radius: 3px; overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    .flag-blue { flex: 1; background: #002b7f; }
+    .flag-white { flex: 1; background: #fff; }
+    .flag-yellow { flex: 1; background: #f9e300; }
+    .nav-links { display: flex; align-items: center; gap: 36px; }
+    .nav-links a {
+      color: var(--mid); text-decoration: none; font-size: .875rem;
+      font-weight: 500; letter-spacing: .01em;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--red); color: #fff !important;
+      padding: 10px 22px; border-radius: 100px;
+      font-size: .875rem; font-weight: 600;
+      transition: background .2s, transform .2s !important;
+    }
+    .nav-cta:hover { background: var(--red-dim) !important; transform: translateY(-1px); }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100svh;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 140px 48px 80px;
+      position: relative; overflow: hidden;
+    }
+    .hero-noise {
+      position: absolute; inset: 0; pointer-events: none; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
+      background-size: 200px;
+    }
+    .hero-glow {
+      position: absolute; top: -20%; right: -10%;
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(236,55,80,.15) 0%, transparent 65%);
+      pointer-events: none; z-index: 0;
+      animation: glow-pulse 6s ease-in-out infinite;
+    }
+    @keyframes glow-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .7; transform: scale(1.08); }
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 1100px; }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(236,55,80,.12); border: 1px solid rgba(236,55,80,.25);
+      color: var(--red); padding: 6px 14px; border-radius: 100px;
+      font-size: .75rem; font-weight: 600; letter-spacing: .08em;
+      text-transform: uppercase; margin-bottom: 32px;
+      opacity: 0; transform: translateY(16px);
+      animation: fade-up .6s .1s forwards;
+    }
+    .hero-eyebrow-dot {
+      width: 6px; height: 6px; background: var(--red);
+      border-radius: 50%; animation: blink 1.4s infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .hero-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(3rem, 8vw, 7.5rem);
+      font-weight: 700; line-height: 1.02; letter-spacing: -.03em;
+      margin-bottom: 28px;
+    }
+    .hero-title .word {
+      display: inline-block;
+      opacity: 0; transform: translateY(40px);
+      animation: fade-up .7s forwards;
+    }
+    .hero-title .accent { color: var(--red); }
+    .hero-sub {
+      font-size: clamp(1rem, 1.8vw, 1.25rem);
+      color: var(--mid); max-width: 560px; line-height: 1.7;
+      font-weight: 400;
+      opacity: 0; transform: translateY(20px);
+      animation: fade-up .7s .65s forwards;
+    }
+    .hero-actions {
+      margin-top: 44px; display: flex; align-items: center; gap: 16px;
+      flex-wrap: wrap;
+      opacity: 0; transform: translateY(20px);
+      animation: fade-up .7s .8s forwards;
+    }
+    .btn-primary {
+      background: var(--red); color: #fff;
+      padding: 16px 32px; border-radius: 100px;
+      font-size: 1rem; font-weight: 600; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: background .2s, transform .2s, box-shadow .2s;
+      border: none; cursor: none;
+    }
+    .btn-primary:hover {
+      background: var(--red-dim); transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(236,55,80,.35);
+    }
+    .btn-ghost {
+      color: var(--mid); padding: 16px 24px; border-radius: 100px;
+      font-size: 1rem; font-weight: 500; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 1px solid var(--border);
+      transition: color .2s, border-color .2s, transform .2s;
+      cursor: none;
+    }
+    .btn-ghost:hover { color: var(--text); border-color: rgba(255,255,255,.2); transform: translateY(-2px); }
+    .hero-scroll {
+      position: absolute; bottom: 40px; left: 48px;
+      display: flex; align-items: center; gap: 12px;
+      color: var(--muted); font-size: .75rem; font-weight: 500;
+      letter-spacing: .06em; text-transform: uppercase;
+      opacity: 0; animation: fade-in 1s 1.4s forwards;
+    }
+    .scroll-line {
+      width: 40px; height: 1px; background: var(--muted);
+      position: relative; overflow: hidden;
+    }
+    .scroll-line::after {
+      content: ''; position: absolute; inset: 0;
+      background: var(--red);
+      animation: slide-right 1.8s ease-in-out infinite;
+    }
+    @keyframes slide-right {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    @keyframes fade-up {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fade-in { to { opacity: 1; } }
+
+    /* ─── MARQUEE ─── */
+    .marquee-section {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+      padding: 20px 0; overflow: hidden;
+    }
+    .marquee-track {
+      display: flex; gap: 0;
+      animation: marquee 20s linear infinite;
+      width: max-content;
+    }
+    .marquee-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 0 32px; white-space: nowrap;
+      font-size: .8rem; font-weight: 600; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--muted);
+    }
+    .marquee-item span { color: var(--red); font-size: 1.2em; }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    /* ─── SECTIONS COMMON ─── */
+    section { padding: 120px 48px; }
+    .section-label {
+      font-size: .7rem; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--red);
+      margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+    }
+    .section-label::before {
+      content: ''; display: block; width: 24px; height: 1px; background: var(--red);
+    }
+    h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2rem, 4.5vw, 3.8rem);
+      font-weight: 700; line-height: 1.1; letter-spacing: -.025em;
+    }
+    .reveal {
+      opacity: 0; transform: translateY(32px);
+      transition: opacity .8s cubic-bezier(.16,1,.3,1),
+                  transform .8s cubic-bezier(.16,1,.3,1);
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ─── ABOUT / MISSION ─── */
+    .about { background: var(--bg2); }
+    .about-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 80px; align-items: center; margin-top: 60px;
+    }
+    .about-text p {
+      color: var(--mid); font-size: 1.05rem; line-height: 1.8;
+      margin-bottom: 20px;
+    }
+    .about-text p strong { color: var(--text); font-weight: 600; }
+    .about-stats {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 2px; border-radius: 16px; overflow: hidden;
+    }
+    .stat-card {
+      background: var(--surface); padding: 36px 32px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .stat-card:first-child { border-radius: 14px 0 0 0; }
+    .stat-card:nth-child(2) { border-radius: 0 14px 0 0; }
+    .stat-card:nth-child(3) { border-radius: 0 0 0 14px; }
+    .stat-card:last-child { border-radius: 0 0 14px 0; }
+    .stat-num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.8rem; font-weight: 700; line-height: 1;
+      color: var(--red); letter-spacing: -.03em;
+    }
+    .stat-label { font-size: .8rem; color: var(--muted); font-weight: 500; }
+
+    /* ─── SERVICES ─── */
+    .services-header { max-width: 640px; margin-bottom: 60px; }
+    .services-header p { color: var(--mid); font-size: 1.05rem; line-height: 1.7; margin-top: 20px; }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2px;
+    }
+    .service-card {
+      background: var(--bg3); padding: 48px 40px;
+      border: 1px solid var(--border);
+      position: relative; overflow: hidden;
+      transition: border-color .3s, background .3s;
+      cursor: none;
+    }
+    .service-card:hover { border-color: rgba(236,55,80,.3); background: var(--surface); }
+    .service-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(600px circle at var(--mx,50%) var(--my,50%), rgba(236,55,80,.06), transparent 40%);
+      opacity: 0; transition: opacity .4s;
+    }
+    .service-card:hover::before { opacity: 1; }
+    .service-icon {
+      width: 52px; height: 52px; border-radius: 14px;
+      background: rgba(236,55,80,.12); border: 1px solid rgba(236,55,80,.2);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 28px; font-size: 1.4rem;
+    }
+    .service-card h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.35rem; font-weight: 700; margin-bottom: 12px;
+      letter-spacing: -.02em;
+    }
+    .service-card p { color: var(--mid); font-size: .9rem; line-height: 1.7; }
+    .service-tags {
+      margin-top: 24px; display: flex; flex-wrap: wrap; gap: 8px;
+    }
+    .tag {
+      font-size: .72rem; font-weight: 600; letter-spacing: .05em;
+      text-transform: uppercase; padding: 5px 12px; border-radius: 100px;
+      background: rgba(255,255,255,.05); color: var(--muted);
+      border: 1px solid var(--border);
+    }
+    .service-arrow {
+      position: absolute; bottom: 32px; right: 32px;
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted); font-size: .85rem;
+      transition: background .2s, border-color .2s, color .2s, transform .2s;
+    }
+    .service-card:hover .service-arrow {
+      background: var(--red); border-color: var(--red);
+      color: #fff; transform: rotate(-45deg);
+    }
+
+    /* ─── NON-PROFIT BANNER ─── */
+    .nonprofit {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .nonprofit-inner {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+    }
+    .nonprofit-visual {
+      position: relative; border-radius: 20px; overflow: hidden;
+      background: linear-gradient(135deg, rgba(236,55,80,.15), rgba(236,55,80,.04));
+      border: 1px solid rgba(236,55,80,.2);
+      padding: 48px; display: flex; flex-direction: column; gap: 16px;
+    }
+    .np-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(236,55,80,.15); border: 1px solid rgba(236,55,80,.3);
+      color: var(--red); font-size: .72rem; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase;
+      padding: 6px 14px; border-radius: 100px; width: fit-content;
+    }
+    .np-big {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 4rem; font-weight: 700; line-height: 1;
+      letter-spacing: -.04em; color: var(--text);
+    }
+    .np-big .accent { color: var(--red); }
+    .np-desc { color: var(--mid); font-size: .85rem; line-height: 1.6; }
+    .np-divider { height: 1px; background: var(--border); }
+    .np-members {
+      display: flex; align-items: center; gap: -8px;
+    }
+    .np-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 2px solid var(--bg2); overflow: hidden;
+      margin-left: -8px; background: var(--surface);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .7rem; font-weight: 700; color: var(--red);
+    }
+    .np-avatar:first-child { margin-left: 0; }
+    .np-member-text { margin-left: 12px; font-size: .8rem; color: var(--muted); }
+    .np-member-text strong { color: var(--text); font-weight: 600; }
+    .nonprofit-text h2 { margin-bottom: 24px; }
+    .nonprofit-text p { color: var(--mid); font-size: 1rem; line-height: 1.8; margin-bottom: 16px; }
+    .nonprofit-text p strong { color: var(--text); }
+    .nonprofit-points { list-style: none; margin-top: 28px; display: flex; flex-direction: column; gap: 14px; }
+    .nonprofit-points li {
+      display: flex; align-items: flex-start; gap: 12px;
+      font-size: .9rem; color: var(--mid); line-height: 1.5;
+    }
+    .np-check {
+      width: 22px; height: 22px; min-width: 22px; border-radius: 50%;
+      background: rgba(236,55,80,.12); border: 1px solid rgba(236,55,80,.25);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--red); font-size: .65rem; font-weight: 900;
+      margin-top: 1px;
+    }
+
+    /* ─── PROCESS ─── */
+    .process { background: var(--bg); }
+    .process-steps {
+      margin-top: 60px; display: flex; flex-direction: column; gap: 0;
+    }
+    .step {
+      display: grid; grid-template-columns: 80px 1fr;
+      gap: 0; border-bottom: 1px solid var(--border);
+      padding: 40px 0; align-items: start;
+      transition: background .2s;
+      position: relative;
+    }
+    .step::after {
+      content: ''; position: absolute; left: 0; right: 0; bottom: 0;
+      height: 1px; background: var(--red); transform: scaleX(0);
+      transform-origin: left; transition: transform .4s cubic-bezier(.16,1,.3,1);
+    }
+    .step:hover::after { transform: scaleX(1); }
+    .step-num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem; font-weight: 700; color: var(--muted);
+      padding-top: 4px;
+    }
+    .step-body { display: flex; justify-content: space-between; align-items: start; gap: 40px; }
+    .step-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+      font-weight: 700; letter-spacing: -.02em;
+      margin-bottom: 10px;
+    }
+    .step-desc { color: var(--mid); font-size: .9rem; line-height: 1.7; max-width: 480px; }
+    .step-tag {
+      font-size: .7rem; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--red);
+      background: rgba(236,55,80,.1); border: 1px solid rgba(236,55,80,.2);
+      padding: 6px 14px; border-radius: 100px;
+      white-space: nowrap; align-self: center;
+    }
+
+    /* ─── PRICING ─── */
+    .pricing { background: var(--bg2); }
+    .pricing-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2px; margin-top: 60px;
+    }
+    .plan {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 0; padding: 40px 36px;
+      display: flex; flex-direction: column; gap: 20px;
+      position: relative; overflow: hidden;
+      transition: border-color .3s;
+    }
+    .plan.featured {
+      border-color: rgba(236,55,80,.4);
+      background: linear-gradient(160deg, rgba(236,55,80,.08) 0%, var(--bg3) 60%);
+    }
+    .plan-badge {
+      position: absolute; top: 20px; right: 20px;
+      background: var(--red); color: #fff;
+      font-size: .65rem; font-weight: 700; letter-spacing: .07em;
+      text-transform: uppercase; padding: 4px 12px; border-radius: 100px;
+    }
+    .plan-name { font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+    .plan-price {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.8rem; font-weight: 700; letter-spacing: -.03em;
+      line-height: 1;
+    }
+    .plan-price sup { font-size: 1.2rem; vertical-align: super; font-weight: 500; }
+    .plan-price .period { font-size: .9rem; font-weight: 400; color: var(--muted); }
+    .plan-divider { height: 1px; background: var(--border); }
+    .plan-features { display: flex; flex-direction: column; gap: 12px; }
+    .plan-feature {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: .875rem; color: var(--mid); line-height: 1.5;
+    }
+    .feat-icon { color: var(--red); min-width: 16px; margin-top: 1px; }
+    .plan-cta {
+      margin-top: auto; padding: 14px 24px; border-radius: 100px;
+      text-align: center; text-decoration: none; font-size: .875rem;
+      font-weight: 600; transition: all .2s; cursor: none; display: block;
+    }
+    .plan-cta-ghost {
+      border: 1px solid var(--border); color: var(--text);
+    }
+    .plan-cta-ghost:hover { border-color: rgba(255,255,255,.3); background: rgba(255,255,255,.04); }
+    .plan-cta-fill { background: var(--red); color: #fff; }
+    .plan-cta-fill:hover { background: var(--red-dim); box-shadow: 0 8px 30px rgba(236,55,80,.3); transform: translateY(-1px); }
+    .pricing-note { margin-top: 32px; text-align: center; color: var(--muted); font-size: .8rem; }
+
+    /* ─── CTA ─── */
+    .cta-section {
+      padding: 160px 48px;
+      background: var(--bg);
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .cta-glow {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      width: 600px; height: 400px;
+      background: radial-gradient(ellipse, rgba(236,55,80,.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .cta-content { position: relative; z-index: 1; }
+    .cta-section h2 { font-size: clamp(2.5rem, 5vw, 5rem); }
+    .cta-section p { color: var(--mid); font-size: 1.05rem; margin-top: 20px; max-width: 500px; margin-inline: auto; line-height: 1.7; }
+    .cta-actions { margin-top: 40px; display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 48px; background: var(--bg);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 24px;
+    }
+    .footer-left { display: flex; flex-direction: column; gap: 8px; }
+    .footer-logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700; font-size: .95rem; color: var(--text);
+    }
+    .footer-sub { font-size: .75rem; color: var(--muted); }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a { font-size: .8rem; color: var(--muted); text-decoration: none; transition: color .2s; }
+    .footer-links a:hover { color: var(--text); }
+    .footer-right { font-size: .75rem; color: var(--muted); }
+
+    /* ─── SCROLL PROGRESS ─── */
+    .progress-bar {
+      position: fixed; top: 0; left: 0; height: 2px;
+      background: var(--red); z-index: 200;
+      transform-origin: left; transform: scaleX(0);
+      transition: transform .1s;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      nav { padding: 20px 24px; }
+      .nav-links { gap: 20px; }
+      .nav-links a:not(.nav-cta) { display: none; }
+      section { padding: 80px 24px; }
+      .hero { padding: 120px 24px 60px; }
+      .about-grid { grid-template-columns: 1fr; gap: 40px; }
+      .nonprofit-inner { grid-template-columns: 1fr; gap: 48px; }
+      .step-body { flex-direction: column; gap: 12px; }
+      footer { flex-direction: column; gap: 20px; }
+      .hero-scroll { left: 24px; }
+    }
+    @media (max-width: 600px) {
+      .hero-title { letter-spacing: -.025em; }
+      .about-stats { grid-template-columns: 1fr 1fr; }
+      .step { grid-template-columns: 52px 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Cursor -->
+  <div class="cursor" id="cursor">
+    <div class="cursor-ring" id="cursor-ring"></div>
+    <div class="cursor-dot" id="cursor-dot"></div>
+  </div>
+
+  <!-- Scroll Progress -->
+  <div class="progress-bar" id="progress"></div>
+
+  <!-- Nav -->
+  <nav id="nav">
+    <a href="#" class="nav-logo">
+      <div class="nav-logo-flag">
+        <div class="flag-blue"></div>
+        <div class="flag-white"></div>
+        <div class="flag-yellow"></div>
+      </div>
+      Hack Club Curaçao
+    </a>
+    <div class="nav-links">
+      <a href="#services">Services</a>
+      <a href="#mission">Mission</a>
+      <a href="#process">Process</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#contact" class="nav-cta">Get Started</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-noise"></div>
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <span class="hero-eyebrow-dot"></span>
+        Willemstad, Curaçao — Est. 2024
+      </div>
+      <h1 class="hero-title" id="heroTitle"></h1>
+      <p class="hero-sub">
+        We build world-class websites and back-end infrastructure for businesses that want to move fast.
+        Every project funds a non-profit teen coding community on the island.
+      </p>
+      <div class="hero-actions">
+        <a href="#contact" class="btn-primary">
+          Start a Project
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="#services" class="btn-ghost">
+          Explore Services
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M4 9l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      Scroll to explore
+    </div>
+  </section>
+
+  <!-- Marquee -->
+  <div class="marquee-section" aria-hidden="true">
+    <div class="marquee-track" id="marquee"></div>
+  </div>
+
+  <!-- About / Mission -->
+  <section class="about" id="mission">
+    <div class="section-label">Our Mission</div>
+    <div class="about-grid">
+      <div class="about-text reveal">
+        <h2>Code that ships.<br/>Impact that lasts.</h2>
+        <br/>
+        <p>
+          <strong>Hack Club Curaçao</strong> is a teen-run, non-profit technology club bringing
+          digital skills to one of the Caribbean's most vibrant islands. We learn by doing —
+          and what we build for you is exactly how we learn.
+        </p>
+        <p>
+          We take on client projects that are real-world, production-grade, and meaningful.
+          Your investment covers professional-quality digital work <strong>and</strong> sustains
+          a community where the next generation of Caribbean engineers is being forged.
+        </p>
+        <p>
+          No corporate middlemen. No inflated agencies. Just talented teenagers who care deeply
+          about their craft — and their island.
+        </p>
+      </div>
+      <div class="about-stats reveal">
+        <div class="stat-card">
+          <div class="stat-num">100%</div>
+          <div class="stat-label">Teen operated & run</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">🌴</div>
+          <div class="stat-label">Based in Curaçao, Caribbean</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">Non-<br/>profit</div>
+          <div class="stat-label">All revenue funds the club</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">∞</div>
+          <div class="stat-label">Passion for building things</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services -->
+  <section id="services">
+    <div class="services-header reveal">
+      <div class="section-label">What We Build</div>
+      <h2>Services designed to scale with you</h2>
+      <p>From landing pages that convert to infrastructure that never sleeps — we handle the full stack so you don't have to.</p>
+    </div>
+    <div class="services-grid">
+
+      <div class="service-card reveal">
+        <div class="service-icon">🎨</div>
+        <h3>Landing Pages & Marketing Sites</h3>
+        <p>Pixel-perfect, blazing-fast marketing sites that turn visitors into customers. Built with modern frameworks and optimised for Core Web Vitals.</p>
+        <div class="service-tags">
+          <span class="tag">Next.js</span>
+          <span class="tag">Framer</span>
+          <span class="tag">Figma</span>
+          <span class="tag">SEO</span>
+        </div>
+        <div class="service-arrow">→</div>
+      </div>
+
+      <div class="service-card reveal">
+        <div class="service-icon">🛒</div>
+        <h3>E-Commerce Stores</h3>
+        <p>Custom storefronts built on Shopify or headless solutions — with checkout flows designed to maximise every conversion.</p>
+        <div class="service-tags">
+          <span class="tag">Shopify</span>
+          <span class="tag">Stripe</span>
+          <span class="tag">Headless</span>
+        </div>
+        <div class="service-arrow">→</div>
+      </div>
+
+      <div class="service-card reveal">
+        <div class="service-icon">⚙️</div>
+        <h3>Back-End Infrastructure</h3>
+        <p>APIs, databases, authentication, serverless functions — we architect back-ends that are secure, scalable, and maintainable.</p>
+        <div class="service-tags">
+          <span class="tag">Node.js</span>
+          <span class="tag">PostgreSQL</span>
+          <span class="tag">AWS</span>
+          <span class="tag">Docker</span>
+        </div>
+        <div class="service-arrow">→</div>
+      </div>
+
+      <div class="service-card reveal">
+        <div class="service-icon">📱</div>
+        <h3>Web Applications</h3>
+        <p>Full-stack web apps with real-time features, user auth, and dashboards — built from scratch to your exact requirements.</p>
+        <div class="service-tags">
+          <span class="tag">React</span>
+          <span class="tag">TypeScript</span>
+          <span class="tag">Supabase</span>
+        </div>
+        <div class="service-arrow">→</div>
+      </div>
+
+      <div class="service-card reveal">
+        <div class="service-icon">🔒</div>
+        <h3>Security & Performance Audits</h3>
+        <p>We review your existing site or app for vulnerabilities, speed bottlenecks, and accessibility issues — then fix them.</p>
+        <div class="service-tags">
+          <span class="tag">OWASP</span>
+          <span class="tag">Lighthouse</span>
+          <span class="tag">Audit</span>
+        </div>
+        <div class="service-arrow">→</div>
+      </div>
+
+      <div class="service-card reveal">
+        <div class="service-icon">🤖</div>
+        <h3>AI Integrations</h3>
+        <p>Plug in language models, image generators, or custom ML pipelines into your existing product to unlock AI-powered features.</p>
+        <div class="service-tags">
+          <span class="tag">OpenAI</span>
+          <span class="tag">Claude</span>
+          <span class="tag">RAG</span>
+        </div>
+        <div class="service-arrow">→</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Non-Profit Banner -->
+  <section class="nonprofit" id="about">
+    <div class="nonprofit-inner">
+      <div class="nonprofit-visual reveal">
+        <div class="np-badge">🌺 Non-Profit</div>
+        <div class="np-big">Built by <span class="accent">teens</span>,<br/>powered by you.</div>
+        <p class="np-desc">Every dollar you spend goes directly into the club — funding workshops, hardware, and island-wide hackathons.</p>
+        <div class="np-divider"></div>
+        <div class="np-members">
+          <div class="np-avatar" style="background:#1a1a1a">JT</div>
+          <div class="np-avatar" style="background:#1a1a1a">ML</div>
+          <div class="np-avatar" style="background:#1a1a1a">AR</div>
+          <div class="np-avatar" style="background:#1a1a1a">KV</div>
+          <div class="np-member-text"><strong>Hack Club Curaçao members</strong><br/>building the future 🏝️</div>
+        </div>
+      </div>
+      <div class="nonprofit-text reveal">
+        <div class="section-label">Why Choose Us</div>
+        <h2>Great work. Greater purpose.</h2>
+        <p>
+          Most agencies charge a premium so their executives can drive nicer cars.
+          <strong>We charge so teenagers can learn to code.</strong>
+        </p>
+        <p>
+          When you hire Hack Club Curaçao, you receive professional digital services at competitive rates
+          — and you become part of a movement to bring tech education to an island where it barely exists.
+        </p>
+        <ul class="nonprofit-points">
+          <li>
+            <div class="np-check">✓</div>
+            <span><strong style="color:var(--text)">Tax-deductible</strong> — sponsoring a non-profit means your invoice can qualify as a charitable contribution.</span>
+          </li>
+          <li>
+            <div class="np-check">✓</div>
+            <span><strong style="color:var(--text)">Transparent finances</strong> — we publish exactly how client revenue is spent each quarter.</span>
+          </li>
+          <li>
+            <div class="np-check">✓</div>
+            <span><strong style="color:var(--text)">Community impact</strong> — your project funds the next workshop, hardware kit, or scholarship.</span>
+          </li>
+          <li>
+            <div class="np-check">✓</div>
+            <span><strong style="color:var(--text)">Zero bureaucracy</strong> — you talk directly to the people building your product, every time.</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Process -->
+  <section class="process" id="process">
+    <div class="section-label">How It Works</div>
+    <h2 class="reveal">From idea to production<br/>in four steps.</h2>
+    <div class="process-steps">
+      <div class="step reveal">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <div>
+            <div class="step-title">Discovery Call</div>
+            <p class="step-desc">We spend 30–60 minutes understanding your goals, audience, and technical requirements. No forms, no sales pitch — just a real conversation.</p>
+          </div>
+          <div class="step-tag">Free</div>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <div>
+            <div class="step-title">Proposal & Design</div>
+            <p class="step-desc">We send a clear scope document, timeline, and price. Once approved, we move into design — sharing interactive Figma prototypes before writing a line of code.</p>
+          </div>
+          <div class="step-tag">Week 1</div>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <div>
+            <div class="step-title">Build & Review</div>
+            <p class="step-desc">We build in sprints and share progress every few days. You have full visibility into the repo, staging environment, and our communication channel.</p>
+          </div>
+          <div class="step-tag">Weeks 2–4</div>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">04</div>
+        <div class="step-body">
+          <div>
+            <div class="step-title">Launch & Support</div>
+            <p class="step-desc">We deploy to your infrastructure and stick around for 30 days post-launch to squash any bugs, answer questions, and ensure a smooth handover.</p>
+          </div>
+          <div class="step-tag">Ongoing</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="pricing" id="pricing">
+    <div class="section-label">Pricing</div>
+    <h2 class="reveal">Simple, transparent pricing.</h2>
+    <div class="pricing-grid">
+
+      <div class="plan reveal">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price"><sup>$</sup>499 <span class="period">one-time</span></div>
+        <div class="plan-divider"></div>
+        <div class="plan-features">
+          <div class="plan-feature"><span class="feat-icon">✦</span>Landing page (up to 5 sections)</div>
+          <div class="plan-feature"><span class="feat-icon">✦</span>Mobile-responsive design</div>
+          <div class="plan-feature"><span class="feat-icon">✦</span>Contact form integration</div>
+          <div class="plan-feature"><span class="feat-icon">✦</span>Basic SEO setup</div>
+          <div class="plan-feature"><span class="feat-icon">✦</span>30-day post-launch support</div>
+        </div>
+        <a href="#contact" class="plan-cta plan-cta-ghost">Get Started</a>
+      </div>
+
+      <div class="plan featured reveal">
+        <div class="plan-badge">Most Popular</div>
+        <div class="plan-name">Growth</div>
+        <div class="plan-price"><sup>$</sup>1,499 <span class="period">one-time</span></div>
+        <div class="plan-divider"></div>
+        <div class="plan-features">
+          <div class="plan-feature"><span class="feat-icon">✦</span>Full website (up to 12 pages)</div>
+          <div class="plan-feature"><span class="feat-icon">✦</span>Custom design system</div>
+          <div class="plan-feature"><span class="feat-icon">✦</span>CMS integration</div>
+          <div class="plan-feature"><span class="feat-icon">✦</span>Performance & SEO optimisation</div>
+          <div class="plan-feature"><span class="feat-icon">✦</span>Analytics setup</div>
+          <div class="plan-feature"><span class="feat-icon">✦</span>60-day post-launch support</div>
+        </div>
+        <a href="#contact" class="plan-cta plan-cta-fill">Get Started</a>
+      </div>
+
+      <div class="plan reveal">
+        <div class="plan-name">Infrastructure</div>
+        <div class="plan-price"><sup>$</sup>799 <span class="period">/ month</span></div>
+        <div class="plan-divider"></div>
+        <div class="plan-features">
+          <div class="plan-feature"><span class="feat-icon">✦</span>API design & development</div>
+          <div class="plan-feature"><span class="feat-icon">✦</span>Database architecture</div>
+          <div class="plan-feature"><span class="feat-icon">✦</span>CI/CD pipeline setup</div>
+          <div class="plan-feature"><span class="feat-icon">✦</span>Cloud hosting & scaling</div>
+          <div class="plan-feature"><span class="feat-icon">✦</span>Security monitoring</div>
+          <div class="plan-feature"><span class="feat-icon">✦</span>Dedicated support channel</div>
+        </div>
+        <a href="#contact" class="plan-cta plan-cta-ghost">Get Started</a>
+      </div>
+
+    </div>
+    <p class="pricing-note">Need something custom? <a href="#contact" style="color:var(--red);text-decoration:none">Send us a message</a> and we'll put together a bespoke quote.</p>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section" id="contact">
+    <div class="cta-glow"></div>
+    <div class="cta-content reveal">
+      <div class="section-label" style="justify-content:center">Get In Touch</div>
+      <h2>Ready to build<br/><span style="color:var(--red)">something great?</span></h2>
+      <p>Drop us a message and we'll get back to you within 24 hours with a plan for your project.</p>
+      <div class="cta-actions">
+        <a href="mailto:hello@hackclubcuracao.org" class="btn-primary">
+          Email Us
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4l6 5 6-5M2 4h12v9H2V4z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="https://instagram.com/hackclubcuracao" class="btn-ghost">
+          Instagram
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="3" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/><circle cx="11.5" cy="4.5" r=".75" fill="currentColor"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-left">
+      <div class="footer-logo">Hack Club Curaçao</div>
+      <div class="footer-sub">A non-profit teen tech club. 🏝️ Willemstad, Curaçao.</div>
+    </div>
+    <div class="footer-links">
+      <a href="#services">Services</a>
+      <a href="#mission">Mission</a>
+      <a href="#process">Process</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <div class="footer-right">© 2024 Hack Club Curaçao. All rights reserved.</div>
+  </footer>
+
+  <script>
+    // ── Custom cursor ──
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursor-ring');
+    const dot = document.getElementById('cursor-dot');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      dot.style.left = mx + 'px'; dot.style.top = my + 'px';
+    });
+
+    function animRing() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+      requestAnimationFrame(animRing);
+    }
+    animRing();
+
+    document.querySelectorAll('a, button, .service-card, .plan, .step').forEach(el => {
+      el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+      el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+    });
+
+    // ── Scroll progress ──
+    const progress = document.getElementById('progress');
+    window.addEventListener('scroll', () => {
+      const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+      progress.style.transform = `scaleX(${pct})`;
+    }, { passive: true });
+
+    // ── Nav scroll ──
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+    }, { passive: true });
+
+    // ── Hero title typewriter ──
+    const words = ['We build', 'digital', 'products', 'that matter.'];
+    const container = document.getElementById('heroTitle');
+    words.forEach((w, i) => {
+      const span = document.createElement('span');
+      span.className = 'word' + (i === 1 ? ' accent' : '');
+      span.textContent = w + ' ';
+      span.style.animationDelay = (0.25 + i * 0.15) + 's';
+      container.appendChild(span);
+    });
+
+    // ── Marquee ──
+    const items = [
+      'Web Design', 'Back-End', 'E-Commerce', 'APIs', 'Cloud Infra',
+      'AI Integrations', 'Hack Club', 'Open Source', 'Curaçao',
+      'Teens Who Code', 'Full-Stack', 'UI/UX'
+    ];
+    const track = document.getElementById('marquee');
+    [...items, ...items].forEach(item => {
+      const d = document.createElement('div');
+      d.className = 'marquee-item';
+      d.innerHTML = `<span>✦</span>${item}`;
+      track.appendChild(d);
+    });
+
+    // ── Reveal on scroll ──
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+    }, { threshold: 0.12 });
+    reveals.forEach(el => observer.observe(el));
+
+    // ── Service card mouse radial ──
+    document.querySelectorAll('.service-card').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const rect = card.getBoundingClientRect();
+        card.style.setProperty('--mx', ((e.clientX - rect.left) / rect.width * 100) + '%');
+        card.style.setProperty('--my', ((e.clientY - rect.top) / rect.height * 100) + '%');
+      });
+    });
+  </script>
+</body>
+</html>
