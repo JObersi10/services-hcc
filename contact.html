@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact — Hack Club Curaçao</title>
+  <meta name="description" content="Get in touch with Hack Club Curaçao to start a project, ask about joining the club, or say hello. We typically reply within 24 hours." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+  <a href="#main" class="skip-link">Skip to content</a>
+  <div class="progress-bar" id="progress"></div>
+
+  <!-- Nav -->
+  <nav id="nav">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-flag">
+        <div class="flag-blue"></div>
+        <div class="flag-white"></div>
+        <div class="flag-yellow"></div>
+      </div>
+      Hack Club Curaçao
+    </a>
+    <button id="navToggle" class="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">
+      <svg class="icon icon-menu" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <svg class="icon icon-close" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <a href="work.html">Work</a>
+      <a href="team.html">Team</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="contact.html" class="nav-cta active">Start a Project</a>
+    </div>
+  </nav>
+
+  <main id="main">
+
+  <!-- Page Hero -->
+  <section class="page-hero">
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <span class="hero-eyebrow-dot"></span>
+        Contact
+      </div>
+      <h1>Let's build<br/>something together</h1>
+      <p class="hero-sub">
+        Tell us a bit about your project and we'll get back to you within 24 hours.
+        Prefer email? Reach us directly at <a href="mailto:hello@hackclubcuracao.org" style="color:var(--red);text-decoration:none;font-weight:600">hello@hackclubcuracao.org</a>.
+      </p>
+    </div>
+  </section>
+
+  <!-- Contact Grid -->
+  <section style="padding-top:0">
+    <div class="contact-grid">
+
+      <form class="contact-form reveal" id="contactForm">
+        <h2 style="margin-bottom:8px">Send us a message</h2>
+        <p style="color:var(--muted);margin-bottom:8px">Fields marked * are required.</p>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="name">Name *</label>
+            <input type="text" id="name" name="name" required autocomplete="name" />
+          </div>
+          <div class="field">
+            <label for="email">Email *</label>
+            <input type="email" id="email" name="email" required autocomplete="email" />
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="company">Company / Organisation</label>
+            <input type="text" id="company" name="company" autocomplete="organization" />
+          </div>
+          <div class="field">
+            <label for="projectType">Project Type *</label>
+            <select id="projectType" name="projectType" required>
+              <option value="" selected disabled>Select one…</option>
+              <option value="landing">Landing Page / Marketing Site</option>
+              <option value="ecommerce">E-Commerce Store</option>
+              <option value="webapp">Web Application</option>
+              <option value="infra">Back-End / Infrastructure</option>
+              <option value="audit">Security / Performance Audit</option>
+              <option value="ai">AI Integration</option>
+              <option value="other">Something Else</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="budget">Estimated Budget</label>
+            <select id="budget" name="budget">
+              <option value="" selected disabled>Select a range…</option>
+              <option value="under-500">Under $500</option>
+              <option value="500-1500">$500 – $1,500</option>
+              <option value="1500-3000">$1,500 – $3,000</option>
+              <option value="3000-plus">$3,000+</option>
+              <option value="not-sure">Not sure yet</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="timeline">Desired Timeline</label>
+            <select id="timeline" name="timeline">
+              <option value="" selected disabled>Select one…</option>
+              <option value="asap">As soon as possible</option>
+              <option value="1month">Within a month</option>
+              <option value="flexible">Flexible</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="message">Project Details *</label>
+          <textarea id="message" name="message" rows="6" required placeholder="What are you trying to build? Any links, references, or existing brand materials are helpful too."></textarea>
+        </div>
+
+        <button type="submit" class="btn-primary btn-block">
+          Send Message
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+
+        <p class="form-note" id="formStatus" role="status" hidden></p>
+      </form>
+
+      <div class="contact-info reveal">
+
+        <div class="info-card">
+          <h3>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 7l9 6 9-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Email
+          </h3>
+          <p>For project inquiries, partnerships, or general questions.</p>
+          <a href="mailto:hello@hackclubcuracao.org" style="color:var(--red);text-decoration:none;font-weight:600">hello@hackclubcuracao.org</a>
+        </div>
+
+        <div class="info-card">
+          <h3>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 21s-6-5.2-6-10a6 6 0 1 1 12 0c0 4.8-6 10-6 10z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="11" r="2" stroke="currentColor" stroke-width="1.5"/></svg>
+            Location
+          </h3>
+          <p>Willemstad, Curaçao. We work with clients locally and remotely across the Caribbean.</p>
+        </div>
+
+        <div class="info-card">
+          <h3>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="9" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M3 19c0-3 2.5-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="17" cy="8" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M15.5 14.2c2.5.4 4.5 2.2 4.5 4.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Want to join the club?
+          </h3>
+          <p>If you're a student aged 13–19 in Curaçao and want to learn to code, select "Something Else" in the form and tell us a bit about yourself — or visit our <a href="team.html#join" style="color:var(--red);text-decoration:none;font-weight:600">team page</a>.</p>
+        </div>
+
+        <div class="info-card">
+          <h3>Follow along</h3>
+          <p>See our latest projects and club updates.</p>
+          <div class="info-socials">
+            <a href="https://instagram.com/hackclubcuracao" aria-label="Hack Club Curaçao on Instagram" target="_blank" rel="noopener">
+              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+            </a>
+            <a href="https://github.com/" aria-label="Hack Club Curaçao on GitHub" target="_blank" rel="noopener">
+              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2a10 10 0 0 0-3.16 19.5c.5.1.68-.22.68-.48v-1.7c-2.78.6-3.37-1.18-3.37-1.18-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.36 1.08 2.94.83.09-.65.35-1.08.63-1.33-2.22-.25-4.55-1.11-4.55-4.92 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.6 9.6 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.82-2.34 4.66-4.57 4.91.36.31.68.92.68 1.85v2.75c0 .26.18.58.69.48A10 10 0 0 0 12 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="footer-logo">
+          <div class="nav-logo-flag">
+            <div class="flag-blue"></div>
+            <div class="flag-white"></div>
+            <div class="flag-yellow"></div>
+          </div>
+          Hack Club Curaçao
+        </a>
+        <p class="footer-sub">A non-profit, teen-run digital studio in Willemstad, Curaçao. We build real products for real clients — and every project funds free coding education for island teens.</p>
+        <div class="info-socials">
+          <a href="mailto:hello@hackclubcuracao.org" aria-label="Email Hack Club Curaçao">
+            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 7l9 6 9-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a href="https://instagram.com/hackclubcuracao" aria-label="Hack Club Curaçao on Instagram" target="_blank" rel="noopener">
+            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+          </a>
+          <a href="https://github.com/" aria-label="Hack Club Curaçao on GitHub" target="_blank" rel="noopener">
+            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2a10 10 0 0 0-3.16 19.5c.5.1.68-.22.68-.48v-1.7c-2.78.6-3.37-1.18-3.37-1.18-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.36 1.08 2.94.83.09-.65.35-1.08.63-1.33-2.22-.25-4.55-1.11-4.55-4.92 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.6 9.6 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.82-2.34 4.66-4.57 4.91.36.31.68.92.68 1.85v2.75c0 .26.18.58.69.48A10 10 0 0 0 12 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Site</h4>
+        <a href="index.html">Home</a>
+        <a href="work.html">Work</a>
+        <a href="team.html">Team</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="contact.html">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h4>Services</h4>
+        <a href="index.html#services">Web Design</a>
+        <a href="index.html#services">E-Commerce</a>
+        <a href="index.html#services">Web Apps</a>
+        <a href="index.html#services">Infrastructure</a>
+      </div>
+      <div class="footer-col">
+        <h4>Get Involved</h4>
+        <a href="team.html#join">Join the Club</a>
+        <a href="contact.html">Hire Us</a>
+        <a href="https://instagram.com/hackclubcuracao" target="_blank" rel="noopener">Instagram</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2026 Hack Club Curaçao. All rights reserved.</div>
+      <div class="footer-bottom-links">
+        <span style="display:inline-flex;align-items:center;gap:6px"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 21s-6-5.2-6-10a6 6 0 1 1 12 0c0 4.8-6 10-6 10z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="11" r="2" stroke="currentColor" stroke-width="1.5"/></svg>Willemstad, Curaçao</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

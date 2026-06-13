@@ -644,11 +644,15 @@ h3 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; letter-spacing:
 .plan-divider { height: 1px; background: var(--border); }
 .plan-desc { color: var(--mid); font-size: .85rem; line-height: 1.6; }
 .plan-features { display: flex; flex-direction: column; gap: 12px; }
+.plan-features li,
 .plan-feature {
   display: flex; align-items: flex-start; gap: 10px;
   font-size: .875rem; color: var(--mid); line-height: 1.5;
 }
-.feat-icon { color: var(--red); min-width: 16px; margin-top: 2px; }
+.feat-icon,
+.plan-features li .icon-sm {
+  color: var(--red); min-width: 16px; margin-top: 2px; flex-shrink: 0;
+}
 .plan-cta {
   margin-top: auto; padding: 14px 24px; border-radius: 100px;
   text-align: center; text-decoration: none; font-size: .875rem;
@@ -747,7 +751,7 @@ h3 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; letter-spacing:
   display: flex; align-items: center; justify-content: center; color: var(--red);
   margin-bottom: 4px;
 }
-.info-card h3 { font-size: 1rem; }
+.info-card h3 { display: flex; align-items: center; gap: 10px; font-size: 1rem; }
 .info-card p { color: var(--mid); font-size: .9rem; line-height: 1.6; }
 .info-card a { color: var(--text); text-decoration: none; font-weight: 600; font-size: .9rem; }
 .info-card a:hover { color: var(--red); }
