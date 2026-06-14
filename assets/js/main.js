@@ -251,6 +251,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }));
   }
 
+  // Fix: when a page is restored from the back/forward cache (bfcache), this
+  // script does NOT re-run, so an overlay left mid-"pt-covering" (about to
+  // navigate away) stays stuck covering the whole viewport in red forever.
+  // Reset it on bfcache restore.
+  window.addEventListener('pageshow', function (e) {
+    if (e.persisted) {
+      overlay.classList.remove('pt-covering', 'pt-revealing');
+      overlay.style.pointerEvents = 'none';
+      panel.style.transform = 'translateY(calc(100% + 180px))';
+      sessionStorage.removeItem('pt-active');
+    }
+  });
+
   document.addEventListener('click', function (e) {
     const link = e.target.closest('a');
     if (!link) return;
@@ -259,7 +272,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const isExternal = link.target === '_blank' || /^(https?:)?\/\//.test(href);
     const isAnchorOnly = /^#/.test(href);
     const isSpecial = /^(mailto:|tel:)/.test(href);
-    if (isExternal || isAnchorOnly || isSpecial) return;
+    // Same-page links (e.g. "index.html#services" clicked while already on
+    // index.html) don't trigger a real navigation/reload — they just scroll
+    // to the anchor. If we still play the covering animation, the overlay
+    // never gets revealed again and is left stuck covering the page in red.
+    let isSamePage = false;
+    try {
+      const target = new URL(href, window.location.href);
+      isSamePage = target.pathname === window.location.pathname && !!target.hash;
+    } catch (_) {}
+    if (isExternal || isAnchorOnly || isSpecial || isSamePage) return;
 
     e.preventDefault();
     overlay.style.pointerEvents = 'all';

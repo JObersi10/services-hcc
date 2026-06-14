@@ -486,6 +486,13 @@ h3 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; letter-spacing:
   color: rgba(255,255,255,.5);
 }
 .work-thumb .icon-lg { width: 44px; height: 44px; }
+/* Optional case-study photo — drop a file in /media (work1.jpg, work2.jpg, ...)
+   and it covers the gradient + icon placeholder automatically. If the file
+   is missing, onerror removes the <img> and the placeholder shows as-is. */
+.work-img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover;
+}
 .work-thumb::after {
   content: ''; position: absolute; inset: 0;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.06'/%3E%3C/svg%3E");
@@ -518,6 +525,14 @@ h3 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; letter-spacing:
   display: flex; align-items: center; justify-content: center;
   font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.2rem;
   color: #fff; margin-bottom: 20px;
+  position: relative; overflow: hidden;
+}
+/* Optional profile photo — drop a file in /media (pfp1.jpg, pfp2.jpg, ...)
+   and it covers the gradient/initials automatically. If the file is
+   missing, onerror hides the <img> and the gradient + initials show. */
+.avatar-img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; border-radius: 50%;
 }
 .team-card h3 { font-size: 1.1rem; margin-bottom: 2px; }
 .team-role { font-size: .8rem; color: var(--red); font-weight: 600; margin-bottom: 12px; }
@@ -556,6 +571,7 @@ h3 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; letter-spacing:
   display: flex; align-items: center; justify-content: center;
   font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: .9rem;
   color: #fff; flex-shrink: 0;
+  position: relative; overflow: hidden;
 }
 .testimonial-author .name { font-size: .9rem; font-weight: 600; color: var(--text); }
 .testimonial-author .role { font-size: .8rem; color: var(--muted); }
@@ -619,7 +635,14 @@ h3 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; letter-spacing:
 
 /* ─── PROCESS ─── */
 .process { background: var(--bg); }
-.process-steps { margin-top: 60px; display: flex; flex-direction: column; gap: 0; }
+.process-steps { margin-top: 60px; display: flex; flex-direction: column; gap: 0; position: relative; }
+.process-steps::before {
+  content: '';
+  position: absolute; z-index: 0;
+  left: 40px; top: 64px; bottom: 64px;
+  width: 2px; background: var(--border);
+  transform: translateX(-50%);
+}
 .step {
   display: grid; grid-template-columns: 80px 1fr;
   gap: 0; border-bottom: 1px solid var(--border);
@@ -627,16 +650,18 @@ h3 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; letter-spacing:
   transition: background .2s;
   position: relative;
 }
-.step::after {
-  content: ''; position: absolute; left: 0; right: 0; bottom: 0;
-  height: 1px; background: var(--red); transform: scaleX(0);
-  transform-origin: left; transition: transform .4s cubic-bezier(.16,1,.3,1);
-}
-.step:hover::after, .step:focus-within::after { transform: scaleX(1); }
+.step:last-child { border-bottom: none; }
 .step-num {
   font-family: 'Space Grotesk', sans-serif;
   font-size: 1rem; font-weight: 700; color: var(--muted);
-  padding-top: 4px;
+  width: 48px; height: 48px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg); border: 2px solid var(--border);
+  position: relative; z-index: 1;
+  transition: border-color .3s cubic-bezier(.16,1,.3,1), color .3s, background .3s;
+}
+.step:hover .step-num, .step:focus-within .step-num {
+  border-color: var(--red); color: var(--red); background: rgba(236,55,80,.08);
 }
 .step-body { display: flex; justify-content: space-between; align-items: start; gap: 40px; }
 .step-title {
@@ -684,7 +709,7 @@ h3 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; letter-spacing:
   line-height: 1;
 }
 .plan-price sup { font-size: 1.2rem; vertical-align: super; font-weight: 500; }
-.plan-price .period { font-size: .9rem; font-weight: 400; color: var(--muted); }
+.plan-price .period { font-size: .9rem; font-weight: 400; color: var(--muted); margin-left: 6px; }
 .plan-divider { height: 1px; background: var(--border); }
 .plan-desc { color: var(--mid); font-size: .85rem; line-height: 1.6; }
 .plan-features { display: flex; flex-direction: column; gap: 12px; }
@@ -878,9 +903,9 @@ footer {
   }
   .nav-cta { margin-top: 12px; padding: 16px 32px; font-size: 1.1rem; }
 
-  section { padding: 80px 24px; }
-  .hero { padding: 120px 24px 60px; }
-  .page-hero { padding: 130px 24px 60px; }
+  section { padding: 80px 28px; }
+  .hero { padding: 120px 28px 60px; }
+  .page-hero { padding: 130px 28px 60px; }
   .about-grid { grid-template-columns: 1fr; gap: 40px; }
   .nonprofit-inner { grid-template-columns: 1fr; gap: 48px; }
   .step-body { flex-direction: column; gap: 12px; }
@@ -891,9 +916,49 @@ footer {
   .section-head { margin-bottom: 40px; }
 }
 @media (max-width: 600px) {
-  .hero-title { letter-spacing: -.025em; }
+  /* Hero */
+  .hero { padding: 110px 20px 56px; }
+  .hero-title {
+    font-size: clamp(2.4rem, 11vw, 3.2rem);
+    letter-spacing: -.02em;
+    line-height: 1.06;
+  }
+  .hero-title .word:last-child { white-space: normal; } /* allow wrap on small screens */
+  .hero-sub { font-size: 1rem; max-width: 100%; }
+  .hero-actions { margin-top: 32px; gap: 12px; }
+  .hero-actions .btn-primary,
+  .hero-actions .btn-ghost { width: 100%; justify-content: center; }
+  .hero-scroll { left: 20px; bottom: 28px; }
+  .hero-eyebrow { font-size: .7rem; padding: 5px 12px; margin-bottom: 24px; }
+
+  /* Page heroes */
+  .page-hero { padding: 110px 20px 48px; }
+
+  /* Sections */
+  section { padding: 64px 20px; }
+
+  /* Stats */
   .about-stats { grid-template-columns: 1fr 1fr; }
-  .step { grid-template-columns: 52px 1fr; }
+
+  /* Process */
+  .step { grid-template-columns: 44px 1fr; }
+  .step-num { width: 36px; height: 36px; font-size: .85rem; }
+  .process-steps::before { left: 22px; }
+
+  /* Buttons — full width stacked */
+  .cta-actions { flex-direction: column; align-items: stretch; }
+  .cta-actions .btn-primary,
+  .cta-actions .btn-ghost { width: 100%; justify-content: center; }
+
+  /* Footer */
   .footer-grid { grid-template-columns: 1fr; gap: 28px; }
-  .footer-bottom { flex-direction: column; align-items: flex-start; }
+  .footer-bottom { flex-direction: column; align-items: flex-start; gap: 12px; }
+
+  /* Section heads */
+  .section-head { flex-direction: column; align-items: flex-start; gap: 12px; }
+}
+
+@media (max-width: 400px) {
+  .hero-title { font-size: clamp(2rem, 12vw, 2.6rem); }
+  .about-stats { grid-template-columns: 1fr; }
 }
