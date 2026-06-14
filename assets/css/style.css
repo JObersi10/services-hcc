@@ -38,24 +38,34 @@ html { scroll-behavior: smooth; }
   left: -5%; right: -5%;
   height: 100%;
   background: var(--red);
-  transform: translateY(106%);
-  will-change: transform, border-radius;
+  /* push panel + fringe fully below viewport */
+  transform: translateY(calc(100% + 180px));
+  will-change: transform;
 }
+#page-transition .pt-dots {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  display: block;
+  pointer-events: none;
+}
+#page-transition .pt-dots-top { bottom: 100%; }
+#page-transition .pt-dots-bot { top: 100%; }
 
 @keyframes pt-cover {
-  0%   { transform: translateY(106%); border-radius: 60% 60% 0 0 / 90px 90px 0 0; }
-  100% { transform: translateY(0%);   border-radius: 0; }
+  0%   { transform: translateY(calc(100% + 180px)); }
+  100% { transform: translateY(0%); }
 }
 @keyframes pt-reveal {
-  0%   { transform: translateY(0%);    border-radius: 0; }
-  100% { transform: translateY(-106%); border-radius: 0 0 60% 60% / 0 0 90px 90px; }
+  0%   { transform: translateY(0%); }
+  100% { transform: translateY(calc(-100% - 180px)); }
 }
 
 #page-transition.pt-covering .pt-panel {
-  animation: pt-cover .6s cubic-bezier(.76,0,.24,1) forwards;
+  animation: pt-cover .75s cubic-bezier(0.65, 0, 0.35, 1) forwards;
 }
 #page-transition.pt-revealing .pt-panel {
-  animation: pt-reveal .6s cubic-bezier(.76,0,.24,1) forwards;
+  animation: pt-reveal .75s cubic-bezier(0.65, 0, 0.35, 1) forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {

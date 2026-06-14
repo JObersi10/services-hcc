@@ -187,27 +187,67 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /* ── Page transition ── */
 (function () {
-  const DURATION = 600;
+  const DURATION = 750;
+  const FRINGE   = 170;   // px — must match CSS 180px offset (a little less so dots reach edge)
+  const GRID     = 12;    // dot grid spacing
+  const MAX_R    = 5.5;   // max dot radius
+  const RED      = '#ec3750';
+
+  function makeHalftone(denseAtBottom) {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const W = Math.ceil(window.innerWidth * 1.12); // matches panel's 110% width + buffer
+    const canvas = document.createElement('canvas');
+    canvas.width  = W * dpr;
+    canvas.height = FRINGE * dpr;
+    canvas.style.width  = W + 'px';
+    canvas.style.height = FRINGE + 'px';
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.fillStyle = RED;
+
+    for (let x = GRID / 2; x < W + GRID; x += GRID) {
+      for (let y = GRID / 2; y < FRINGE + GRID; y += GRID) {
+        // t=1 → full size dot, t=0 → invisible
+        const t = denseAtBottom
+          ? Math.pow(y / FRINGE, 1.6)             // dense at bottom (near solid panel)
+          : Math.pow((FRINGE - y) / FRINGE, 1.6); // dense at top    (near solid panel)
+        const r = MAX_R * t;
+        if (r < 0.4) continue;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    return canvas;
+  }
+
   const overlay = document.createElement('div');
   overlay.id = 'page-transition';
   overlay.innerHTML = '<div class="pt-panel"></div>';
   document.body.appendChild(overlay);
-
   const panel = overlay.querySelector('.pt-panel');
+
+  // Top fringe: sits above panel — dense at bottom edge (touching panel)
+  const dotsTop = makeHalftone(true);
+  dotsTop.className = 'pt-dots pt-dots-top';
+  panel.appendChild(dotsTop);
+
+  // Bottom fringe: sits below panel — dense at top edge (touching panel)
+  const dotsBot = makeHalftone(false);
+  dotsBot.className = 'pt-dots pt-dots-bot';
+  panel.appendChild(dotsBot);
 
   if (sessionStorage.getItem('pt-active')) {
     sessionStorage.removeItem('pt-active');
-    // New page: start with panel fully covering, then reveal
     panel.style.transform = 'translateY(0)';
-    panel.style.borderRadius = '0';
     overlay.style.pointerEvents = 'all';
     requestAnimationFrame(() => requestAnimationFrame(() => {
       overlay.classList.add('pt-revealing');
       setTimeout(() => {
         overlay.classList.remove('pt-revealing');
-        panel.style.transform = 'translateY(106%)';
+        panel.style.transform = 'translateY(calc(100% + 180px))';
         overlay.style.pointerEvents = 'none';
-      }, DURATION + 50);
+      }, DURATION + 60);
     }));
   }
 
@@ -216,7 +256,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!link) return;
     const href = link.getAttribute('href');
     if (!href) return;
-
     const isExternal = link.target === '_blank' || /^(https?:)?\/\//.test(href);
     const isAnchorOnly = /^#/.test(href);
     const isSpecial = /^(mailto:|tel:)/.test(href);
@@ -226,7 +265,6 @@ document.addEventListener('DOMContentLoaded', () => {
     overlay.style.pointerEvents = 'all';
     overlay.classList.add('pt-covering');
     sessionStorage.setItem('pt-active', '1');
-
     setTimeout(() => { window.location.href = href; }, DURATION);
   });
 })();
