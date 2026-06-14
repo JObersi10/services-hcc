@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     words.forEach((w, i) => {
       const span = document.createElement('span');
       span.className = 'word' + (i === accentIndex ? ' accent' : '');
-      span.textContent = w + ' ';
+      span.textContent = w.trim() + ' ';
       span.style.animationDelay = (0.25 + i * 0.15) + 's';
       heroTitle.appendChild(span);
     });
@@ -184,3 +184,49 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+/* ── Page transition ── */
+(function () {
+  const DURATION = 600;
+  const overlay = document.createElement('div');
+  overlay.id = 'page-transition';
+  overlay.innerHTML = '<div class="pt-panel"></div>';
+  document.body.appendChild(overlay);
+
+  const panel = overlay.querySelector('.pt-panel');
+
+  if (sessionStorage.getItem('pt-active')) {
+    sessionStorage.removeItem('pt-active');
+    // New page: start with panel fully covering, then reveal
+    panel.style.transform = 'translateY(0)';
+    panel.style.borderRadius = '0';
+    overlay.style.pointerEvents = 'all';
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      overlay.classList.add('pt-revealing');
+      setTimeout(() => {
+        overlay.classList.remove('pt-revealing');
+        panel.style.transform = 'translateY(106%)';
+        overlay.style.pointerEvents = 'none';
+      }, DURATION + 50);
+    }));
+  }
+
+  document.addEventListener('click', function (e) {
+    const link = e.target.closest('a');
+    if (!link) return;
+    const href = link.getAttribute('href');
+    if (!href) return;
+
+    const isExternal = link.target === '_blank' || /^(https?:)?\/\//.test(href);
+    const isAnchorOnly = /^#/.test(href);
+    const isSpecial = /^(mailto:|tel:)/.test(href);
+    if (isExternal || isAnchorOnly || isSpecial) return;
+
+    e.preventDefault();
+    overlay.style.pointerEvents = 'all';
+    overlay.classList.add('pt-covering');
+    sessionStorage.setItem('pt-active', '1');
+
+    setTimeout(() => { window.location.href = href; }, DURATION);
+  });
+})();
