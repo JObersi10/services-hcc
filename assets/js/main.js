@@ -90,7 +90,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let words = [];
     try { words = JSON.parse(heroTitle.dataset.words || '[]'); } catch (e) { words = []; }
     const accentIndex = parseInt(heroTitle.dataset.accent || '-1', 10);
+    const newlineIndices = (heroTitle.dataset.newline || '')
+      .split(',')
+      .map(n => parseInt(n.trim(), 10))
+      .filter(n => !isNaN(n));
     words.forEach((w, i) => {
+      if (newlineIndices.includes(i)) {
+        heroTitle.appendChild(document.createElement('br'));
+      }
       const span = document.createElement('span');
       span.className = 'word' + (i === accentIndex ? ' accent' : '');
       span.textContent = w.trim() + ' ';
@@ -112,9 +119,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* ---------- Reveal on scroll ---------- */
+  /* ---------- Reveal on scroll (staggered per sibling group) ---------- */
   const reveals = document.querySelectorAll('.reveal');
   if (reveals.length) {
+    // Stagger items that share a parent so groups (card grids, stat rows,
+    // etc.) cascade in one after another instead of fading all at once.
+    const groups = new Map();
+    reveals.forEach(el => {
+      const siblings = groups.get(el.parentElement) || [];
+      siblings.push(el);
+      groups.set(el.parentElement, siblings);
+    });
+    groups.forEach(siblings => {
+      siblings.forEach((el, i) => {
+        const delay = Math.min(i, 5) * 0.08; // 80ms per item, capped
+        el.style.setProperty('--reveal-delay', delay + 's');
+      });
+    });
+
     if (reducedMotion) {
       reveals.forEach(el => el.classList.add('visible'));
     } else {
@@ -123,6 +145,63 @@ document.addEventListener('DOMContentLoaded', () => {
       }, { threshold: 0.12 });
       reveals.forEach(el => observer.observe(el));
     }
+  }
+
+  /* ---------- Process section: scroll-synced line-draw animation ---------- */
+  const processGrid = document.querySelector('.process-grid');
+  const processIcons = document.querySelectorAll('.process-visual .anim-icon');
+  const stepEls = document.querySelectorAll('.process-steps .step');
+  const dotEls = document.querySelectorAll('.process-dot');
+  if (processGrid && processIcons.length) {
+    const segments = processIcons.length;
+    let ticking = false;
+
+    // Lets progress (and so the first icon's draw-in) start ticking up
+    // slightly before the grid's top edge reaches the viewport top —
+    // i.e. while the "How It Works" heading above is still on screen —
+    // instead of staying frozen at 0 until the heading scrolls away.
+    const LEAD = 350;
+
+    const updateProcess = () => {
+      const rect = processGrid.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const scrollable = rect.height - vh;
+      let progress = scrollable > 0 ? (LEAD - rect.top) / (scrollable + LEAD) : 0;
+      progress = Math.min(1, Math.max(0, progress));
+      const activeIndex = Math.min(segments - 1, Math.floor(progress * segments));
+
+      // Each icon gets its own window with a gap before/after, so one
+      // fully erases (and the line returns to its shared starting point)
+      // before the next one starts drawing — no overlap.
+      const windowW = 0.8 / segments;          // active drawing window
+      const step = 1 / segments;               // window + gap per icon
+      processIcons.forEach((icon, i) => {
+        const start = i * step;
+        const local = (progress - start) / windowW;
+        let net = 0;
+        if (local > 0 && local < 1) {
+          if (local < 0.35) net = local / 0.35;            // draw in
+          else if (local < 0.6) net = 1;                    // hold
+          else net = 1 - (local - 0.6) / 0.4;               // erase out
+        }
+        net = Math.min(1, Math.max(0, net));
+        icon.style.strokeDashoffset = String(100 - net * 100);
+        icon.style.opacity = net > 0.02 ? '1' : '0';
+      });
+
+      stepEls.forEach((step, i) => step.classList.toggle('active', i === activeIndex));
+      dotEls.forEach((dot, i) => dot.classList.toggle('active', i === activeIndex));
+      ticking = false;
+    };
+
+    updateProcess();
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(updateProcess);
+        ticking = true;
+      }
+    }, { passive: true });
+    window.addEventListener('resize', updateProcess);
   }
 
   /* ---------- Service card mouse-follow glow ---------- */

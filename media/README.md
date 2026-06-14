@@ -2,6 +2,11 @@
 
 Drop your images here using these exact filenames. Pages reference them via `media/<filename>` and gracefully fall back to the current placeholder if a file is missing.
 
+## Site logo — "h" mark (already added, used everywhere; old blue/white/yellow flag icon is gone)
+- logo-mark-red.svg — solid red (#EC3750), static. Used small (~22x28) in the nav + footer on all 5 pages.
+- logo-mark.svg — blue/yellow gradient with a slow color-cycling CSS animation. Used big (300px) on the right side of index.html's "We build digital products" hero. On screens narrower than ~900px it shrinks to a large, faded, centered background mark instead.
+- Replace either file with your own version (same filename) to update that logo everywhere it's used.
+
 ## Team photos (team.html, 4 members in page order)
 - pfp1.jpg — Chakradhar Vintha (CV) — Leader & Founder
 - pfp2.jpg — Jaden Obersi (JO) — Co-Leader & Co-Founder

@@ -20,11 +20,7 @@
   <!-- Nav -->
   <nav id="nav">
     <a href="index.html" class="nav-logo">
-      <div class="nav-logo-flag">
-        <div class="flag-blue"></div>
-        <div class="flag-white"></div>
-        <div class="flag-yellow"></div>
-      </div>
+      <img class="logo-img" src="media/logo-mark-red.svg" alt="" onerror="this.remove()">
       Hack Club Curaçao
     </a>
     <button id="navToggle" class="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">
@@ -46,12 +42,13 @@
   <section class="hero">
     <div class="hero-noise"></div>
     <div class="hero-glow"></div>
+    <img src="media/logo-mark.svg" alt="" class="hero-logo-mark" aria-hidden="true" onerror="this.remove()">
     <div class="hero-content">
       <div class="hero-eyebrow">
         <span class="hero-eyebrow-dot"></span>
         Willemstad, Curaçao — Est. 2026
       </div>
-      <h1 class="hero-title" id="heroTitle" data-words='["We build","digital","products that matter."]' data-accent="1" data-newline="3"></h1>
+      <h1 class="hero-title" id="heroTitle" data-words='["We build","digital","products that","matter."]' data-accent="1" data-newline="3"></h1>
       <p class="hero-sub">
         We design and build websites, apps and back-end infrastructure for businesses that want to move fast.
         Every project funds a non-profit teen coding community on the island.
@@ -439,46 +436,64 @@
   <section class="process" id="process">
     <div class="section-label">How It Works</div>
     <h2 class="reveal">From idea to production<br/>in four steps.</h2>
-    <div class="process-steps">
-      <div class="step reveal">
-        <div class="step-num">01</div>
-        <div class="step-body">
-          <div>
-            <div class="step-title">Discovery Call</div>
-            <p class="step-desc">We spend 30–60 minutes understanding your goals, audience, and technical requirements. No forms, no sales pitch — just a real conversation.</p>
+    <div class="process-grid">
+      <div class="process-steps reveal">
+        <div class="process-dots" aria-hidden="true">
+          <span class="process-dot active"></span>
+          <span class="process-dot"></span>
+          <span class="process-dot"></span>
+          <span class="process-dot"></span>
+        </div>
+        <div class="step-stack">
+          <div class="step active">
+            <div class="step-num">01</div>
+            <div class="step-body">
+              <div>
+                <div class="step-title">Discovery Call</div>
+                <p class="step-desc">It starts with a call. We spend 30–60 minutes understanding your goals, audience, and technical requirements. No forms, no sales pitch — just a real conversation.</p>
+              </div>
+              <div class="step-tag">Free</div>
+            </div>
           </div>
-          <div class="step-tag">Free</div>
+          <div class="step">
+            <div class="step-num">02</div>
+            <div class="step-body">
+              <div>
+                <div class="step-title">Proposal & Design</div>
+                <p class="step-desc">That call becomes a document — a clear scope, timeline, and price. Once approved, we move into design and share interactive prototypes before writing a line of code.</p>
+              </div>
+              <div class="step-tag">Week 1</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">03</div>
+            <div class="step-body">
+              <div>
+                <div class="step-title">Build & Review</div>
+                <p class="step-desc">The design becomes code. We build in sprints and share progress every few days — full visibility into the repo, staging environment, and our communication channel.</p>
+              </div>
+              <div class="step-tag">Weeks 2–4</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">04</div>
+            <div class="step-body">
+              <div>
+                <div class="step-title">Launch & Support</div>
+                <p class="step-desc">One click and it's live. We deploy to your infrastructure and stick around for 30 days post-launch to squash bugs, answer questions, and ensure a smooth handover.</p>
+              </div>
+              <div class="step-tag">Ongoing</div>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="step reveal">
-        <div class="step-num">02</div>
-        <div class="step-body">
-          <div>
-            <div class="step-title">Proposal & Design</div>
-            <p class="step-desc">We send a clear scope document, timeline, and price. Once approved, we move into design — sharing interactive prototypes before writing a line of code.</p>
-          </div>
-          <div class="step-tag">Week 1</div>
-        </div>
-      </div>
-      <div class="step reveal">
-        <div class="step-num">03</div>
-        <div class="step-body">
-          <div>
-            <div class="step-title">Build & Review</div>
-            <p class="step-desc">We build in sprints and share progress every few days. You have full visibility into the repo, staging environment, and our communication channel.</p>
-          </div>
-          <div class="step-tag">Weeks 2–4</div>
-        </div>
-      </div>
-      <div class="step reveal">
-        <div class="step-num">04</div>
-        <div class="step-body">
-          <div>
-            <div class="step-title">Launch & Support</div>
-            <p class="step-desc">We deploy to your infrastructure and stick around for 30 days post-launch to squash any bugs, answer questions, and ensure a smooth handover.</p>
-          </div>
-          <div class="step-tag">Ongoing</div>
-        </div>
+      <div class="process-visual reveal" aria-hidden="true">
+        <svg class="process-anim" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path class="anim-icon" pathLength="100" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M5 4a2 2 0 0 1 2-2h2.2a1 1 0 0 1 .97.76l.84 3.35a1 1 0 0 1-.27 1l-1.4 1.4a12.7 12.7 0 0 0 5.15 5.15l1.4-1.4a1 1 0 0 1 1-.27l3.35.84a1 1 0 0 1 .76.97V15.8a2 2 0 0 1-2 2A15.8 15.8 0 0 1 5 4z M15.5 2.5c2.4.9 4.1 2.6 5 5 M13.5 5.8c1.4.55 2.4 1.55 2.9 2.9"/>
+          <path class="anim-icon" pathLength="100" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M6 2h7l5 5v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z M13 2v5h5 M7.5 12.5h9M7.5 15.5h9M7.5 18.5h5.5"/>
+          <path class="anim-icon" pathLength="100" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M4 4H20a1.5 1.5 0 0 1 1.5 1.5V15.5a1.5 1.5 0 0 1-1.5 1.5H4a1.5 1.5 0 0 1-1.5-1.5V5.5a1.5 1.5 0 0 1 1.5-1.5Z M9 21h6M12 17v4 M9 8l-2.2 2.5L9 13 M15 8l2.2 2.5L15 13"/>
+          <path class="anim-icon" pathLength="100" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" d="M5 2.5l6.5 16 2.2-6.3 6.3-2.2z M13.5 13.5l5.5 5.5"/>
+        </svg>
       </div>
     </div>
   </section>
@@ -509,11 +524,7 @@
     <div class="footer-grid">
       <div class="footer-brand">
         <a href="index.html" class="footer-logo">
-          <div class="nav-logo-flag">
-            <div class="flag-blue"></div>
-            <div class="flag-white"></div>
-            <div class="flag-yellow"></div>
-          </div>
+          <img class="logo-img" src="media/logo-mark-red.svg" alt="" onerror="this.remove()">
           Hack Club Curaçao
         </a>
         <p class="footer-sub">A non-profit, teen-run digital studio in Willemstad, Curaçao. We build real products for real clients — and every project funds free coding education for island teens.</p>
