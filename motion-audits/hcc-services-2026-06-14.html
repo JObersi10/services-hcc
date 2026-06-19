@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hcc-services motion audit — 2026-06-14</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink:         oklch(0.155 0.006 255);
+      --surface:     oklch(0.195 0.007 255);
+      --surface-2:   oklch(0.235 0.008 255);
+      --paper:       oklch(0.945 0.004 255);
+      --paper-dim:   oklch(0.800 0.006 255);
+      --muted:       oklch(0.680 0.008 255);
+      --faint:       oklch(0.505 0.008 255);
+      --line:        oklch(0.95 0.01 255 / 0.09);
+      --line-strong: oklch(0.95 0.01 255 / 0.16);
+      --accent-tint: oklch(0.945 0.004 255 / 0.06);
+      --crit:        oklch(0.655 0.185 25);
+      --crit-soft:   oklch(0.655 0.185 25 / 0.12);
+      --imp:         oklch(0.805 0.125 78);
+      --imp-soft:    oklch(0.805 0.125 78 / 0.12);
+      --opp:         oklch(0.745 0.135 152);
+      --opp-soft:    oklch(0.745 0.135 152 / 0.12);
+      --t-good: oklch(0.745 0.135 152);
+      --t-mid:  oklch(0.805 0.125 78);
+      --t-slow: oklch(0.655 0.185 25);
+      --display: "Familjen Grotesk", system-ui, sans-serif;
+      --sans: "Public Sans", -apple-system, system-ui, sans-serif;
+      --mono: "Geist Mono", ui-monospace, monospace;
+      --r: 10px;
+    }
+    :root:has(#theme-light:checked) {
+      --ink:         oklch(0.985 0.003 255);
+      --surface:     oklch(0.965 0.004 255);
+      --surface-2:   oklch(0.940 0.005 255);
+      --paper:       oklch(0.180 0.006 255);
+      --paper-dim:   oklch(0.330 0.008 255);
+      --muted:       oklch(0.475 0.010 255);
+      --faint:       oklch(0.640 0.009 255);
+      --line:        oklch(0.180 0.010 255 / 0.12);
+      --line-strong: oklch(0.180 0.010 255 / 0.22);
+      --crit: oklch(0.510 0.200 25);
+      --imp:  oklch(0.580 0.150 78);
+      --opp:  oklch(0.520 0.160 152);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--ink); color: var(--paper); font-family: var(--sans); font-size: 15px; line-height: 1.6; }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 48px 32px 96px; }
+    h1,h2,h3,h4 { font-family: var(--display); line-height: 1.2; }
+    code { font-family: var(--mono); font-size: 12px; background: var(--surface-2); padding: 2px 6px; border-radius: 4px; color: var(--paper-dim); }
+    .vh { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+    .theme-switch { display: flex; justify-content: flex-end; margin-bottom: 40px; }
+    .theme-seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 100px; overflow: hidden; }
+    .theme-seg label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding: 5px 12px; cursor: pointer; transition: background 0.2s ease, color 0.2s ease; }
+    #theme-dark:checked ~ .wrap .theme-seg label[for="theme-dark"],
+    #theme-light:checked ~ .wrap .theme-seg label[for="theme-light"] { background: color-mix(in oklch, var(--paper) 12%, transparent); color: var(--paper); }
+
+    .eyebrow { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+    .title { font-size: clamp(26px, 4vw, 38px); font-weight: 700; color: var(--paper); margin-bottom: 12px; }
+    .lede { color: var(--paper-dim); font-size: 16px; max-width: 680px; margin-bottom: 24px; }
+    .meta-row { font-family: var(--mono); font-size: 11px; color: var(--muted); display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 32px; border-top: 1px solid var(--line); padding-top: 20px; }
+    .stats { display: flex; gap: 16px; flex-wrap: wrap; }
+    .stat-pill { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 100px; padding: 8px 16px; text-decoration: none; }
+    .stat-pill .num { font-family: var(--display); font-size: 22px; font-weight: 700; }
+    .stat-pill .lbl { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+    .stat-crit .num { color: var(--crit); } .stat-imp .num { color: var(--imp); } .stat-opp .num { color: var(--opp); }
+
+    .assessment { background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r); padding: 28px 32px; margin: 40px 0; }
+    .mono-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; display: block; }
+    .assessment p { font-size: 17px; color: var(--paper); line-height: 1.7; }
+
+    .section-head { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin: 56px 0 20px; display: flex; align-items: center; gap: 16px; }
+    .section-head::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+
+    .lens-table { width: 100%; border-collapse: collapse; }
+    .lens-table th { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--line-strong); }
+    .lens-table td { padding: 14px 16px; border-bottom: 1px solid var(--line); vertical-align: middle; font-size: 14px; transition: background 0.2s ease; }
+    .lens-table tr:hover td { background: var(--surface); }
+    .lens-table tr:last-child td { border-bottom: none; }
+    .weight-chip { display: inline-block; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 8px; border-radius: 100px; border: 1px solid var(--line-strong); color: var(--muted); margin-left: 8px; vertical-align: middle; }
+    .verdict-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; flex-shrink: 0; }
+    .v-strong { background: var(--opp); } .v-mixed { background: var(--imp); } .v-concern { background: var(--crit); }
+
+    .timing-grid { display: grid; grid-template-columns: 1fr 240px; gap: 32px; align-items: start; }
+    .timing-svg-wrap svg { width: 100%; height: auto; }
+    .timing-key { display: flex; flex-direction: column; gap: 10px; padding-top: 4px; }
+    .timing-key-item { display: flex; align-items: flex-start; gap: 10px; font-size: 12px; }
+    .timing-key-num { font-family: var(--mono); font-size: 10px; background: var(--surface-2); border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--paper-dim); }
+    .timing-key-text { color: var(--muted); line-height: 1.4; }
+    .timing-key-text strong { color: var(--paper); display: block; }
+    .timing-off { margin-top: 16px; padding: 14px 16px; background: var(--surface); border-radius: var(--r); font-size: 13px; color: var(--muted); }
+
+    .lens-sec { margin-bottom: 56px; }
+    .lens-sec__verdict { color: var(--muted); font-size: 14px; margin-bottom: 28px; display: flex; align-items: center; gap: 8px; }
+    .lens-block { margin-bottom: 24px; }
+    .lens-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .lens-list li { font-size: 14px; color: var(--muted); display: flex; gap: 10px; }
+    .lens-list li::before { flex-shrink: 0; }
+    .lens-list.good li::before { content: '✓'; color: var(--opp); }
+    .lens-list.opp  li::before { content: '💡'; }
+    .lens-take { margin-top: 24px; padding: 16px 20px; border-radius: var(--r); background: var(--accent-tint); border: 1px solid var(--line-strong); font-size: 14px; color: var(--muted); }
+    .lens-take strong { color: var(--paper); }
+    .lens-empty { font-style: italic; color: var(--faint); font-size: 14px; }
+
+    .finding-row { display: grid; grid-template-columns: 1fr 380px; gap: 28px; background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r); padding: 28px; margin-bottom: 20px; transition: border-color 0.2s ease; }
+    .finding-row[data-sev="crit"] { border-color: oklch(0.655 0.185 25 / 0.28); }
+    .finding-row[data-sev="imp"]  { border-color: oklch(0.805 0.125 78 / 0.28); }
+    .find-tags { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .sev-chip { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 10px; border-radius: 100px; }
+    .sev-chip.crit { background: var(--crit-soft); color: var(--crit); }
+    .sev-chip.imp  { background: var(--imp-soft);  color: var(--imp); }
+    .lens-chip { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 10px; border-radius: 100px; background: var(--surface-2); color: var(--muted); }
+    .find-title { font-size: 16px; font-weight: 600; color: var(--paper); margin-bottom: 14px; }
+    .find-body { display: flex; flex-direction: column; gap: 10px; }
+    .find-body p { font-size: 13.5px; color: var(--muted); }
+    .find-body .label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); display: block; margin-bottom: 3px; }
+    .fix { background: var(--surface-2); border-radius: 6px; padding: 12px 14px; }
+    .find-loc { font-size: 12px; color: var(--faint); margin-top: 12px; }
+
+    .demo { position: relative; }
+    .demo__bar { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .demo__meta { min-width: 0; }
+    .demo__title { display: block; font-size: 13.5px; font-weight: 600; color: var(--paper); line-height: 1.3; }
+    .demo__timing { display: block; font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .demo__controls { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .demo__loop { font-family: var(--mono); font-size: 12px; color: var(--faint); }
+    .seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 100px; overflow: hidden; }
+    .seg label { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding: 4px 9px; cursor: pointer; user-select: none; transition: background 0.15s ease, color 0.15s ease; }
+    .demo input[id$="-a"]:checked ~ .demo__bar .seg label[for$="-a"],
+    .demo input[id$="-l"]:checked ~ .demo__bar .seg label[for$="-l"],
+    .demo input[id$="-d"]:checked ~ .demo__bar .seg label[for$="-d"] { background: color-mix(in oklch, var(--paper) 12%, transparent); color: var(--paper); }
+    .demo__stage { --st-bg: var(--surface-2); --st-fg: var(--paper); --st-line: var(--line-strong); --st-dim: color-mix(in oklch, var(--paper) 55%, transparent); background: var(--st-bg); color: var(--st-fg); border: 1px solid var(--line); border-radius: 10px; padding: 32px 24px; min-height: 168px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .demo input[id$="-l"]:checked ~ .demo__stage { --st-bg: oklch(0.985 0.003 255); --st-fg: oklch(0.180 0.006 255); --st-line: oklch(0.180 0.010 255 / 0.18); --st-dim: oklch(0.180 0.010 255 / 0.45); }
+    .demo input[id$="-d"]:checked ~ .demo__stage { --st-bg: oklch(0.180 0.006 255); --st-fg: oklch(0.985 0.003 255); --st-line: oklch(0.985 0.010 255 / 0.18); --st-dim: oklch(0.985 0.010 255 / 0.50); }
+    .ui-card { background: color-mix(in oklch, var(--st-bg) 85%, transparent); border: 1px solid var(--st-line); border-radius: 10px; padding: 14px 16px; min-width: 100px; }
+    .ui-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--st-dim); }
+    .ui-dot { width: 8px; height: 8px; border-radius: 50%; background: oklch(0.655 0.185 25); flex-shrink: 0; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .demo__loop { display: none; }
+      [class*="__mt"], [class*="__mt"] * { animation: none !important; transition: none !important; }
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      @keyframes m1 {
+        0%   { opacity: 0; transform: scale(0.4); }
+        45%  { opacity: 1; transform: scale(1.18); }
+        62%  { transform: scale(0.92); }
+        74%  { transform: scale(1.05); }
+        82%  { transform: scale(1.0); opacity: 1; }
+        100% { transform: scale(1.0); opacity: 1; }
+      }
+      .demo-1__mt { animation: m1 3s cubic-bezier(0.22, 1, 0.36, 1) infinite; }
+
+      @keyframes m2a { 0% { opacity:0; transform:translateY(10px); filter:blur(2px); } 55% { opacity:1; transform:none; filter:blur(0); } 100% { opacity:1; transform:none; filter:blur(0); } }
+      @keyframes m2b { 0% { opacity:0; transform:translateY(18px); filter:blur(3px); } 55% { opacity:1; transform:none; filter:blur(0); } 100% { opacity:1; transform:none; filter:blur(0); } }
+      @keyframes m2c { 0% { opacity:0; transform:translateY(26px); filter:blur(4px); } 55% { opacity:1; transform:none; filter:blur(0); } 100% { opacity:1; transform:none; filter:blur(0); } }
+      .demo-2__c1 { animation: m2a 3s cubic-bezier(0.22,1,0.36,1) infinite; }
+      .demo-2__c2 { animation: m2b 3s cubic-bezier(0.22,1,0.36,1) infinite; animation-delay: 0.12s; animation-fill-mode: backwards; }
+      .demo-2__c3 { animation: m2c 3s cubic-bezier(0.22,1,0.36,1) infinite; animation-delay: 0.24s; animation-fill-mode: backwards; }
+
+      @keyframes m3-feat { 0% { transform:translateY(0) scale(1); box-shadow:none; } 55% { transform:translateY(-8px) scale(1.015); box-shadow:0 20px 48px oklch(0 0 0/0.35); } 100% { transform:translateY(-8px) scale(1.015); box-shadow:0 20px 48px oklch(0 0 0/0.35); } }
+      @keyframes m3-sup  { 0% { transform:translateY(0); opacity:0.65; } 55% { transform:translateY(-2px); opacity:1; } 100% { transform:translateY(-2px); opacity:1; } }
+      .demo-3__feat { animation: m3-feat 3s cubic-bezier(0.22,1,0.36,1) infinite; }
+      .demo-3__sup  { animation: m3-sup  3s cubic-bezier(0.22,1,0.36,1) infinite; animation-delay: 0.1s; animation-fill-mode: backwards; }
+
+      @keyframes m4p { 0% { stroke-dashoffset:100; opacity:0; } 58% { stroke-dashoffset:0; opacity:1; } 100% { stroke-dashoffset:0; opacity:1; } }
+      .demo-4__p1 { animation: m4p 3s cubic-bezier(0.22,1,0.36,1) infinite; }
+      .demo-4__p2 { animation: m4p 3s cubic-bezier(0.22,1,0.36,1) infinite; animation-delay:0.18s; animation-fill-mode:backwards; }
+      .demo-4__p3 { animation: m4p 3s cubic-bezier(0.22,1,0.36,1) infinite; animation-delay:0.36s; animation-fill-mode:backwards; }
+      .demo-4__p4 { animation: m4p 3s cubic-bezier(0.22,1,0.36,1) infinite; animation-delay:0.54s; animation-fill-mode:backwards; }
+    }
+
+    .rec-section { margin-bottom: 40px; }
+    .tier-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 12px; }
+    .tier-label.crit { color: var(--crit); } .tier-label.imp { color: var(--imp); } .tier-label.opp { color: var(--opp); }
+    .rec-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .rec-table th { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--line-strong); }
+    .rec-table td { padding: 12px 12px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--muted); }
+    .rec-table tr:last-child td { border-bottom: none; }
+    .rec-table .issue { color: var(--paper); font-weight: 500; }
+
+    .ref-summary { background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r); padding: 28px 32px; margin-top: 48px; }
+    .ref-lean { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+    .ref-lean-item { font-size: 13px; color: var(--muted); }
+    .ref-lean-item strong { color: var(--paper); display: block; margin-bottom: 4px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; }
+    footer { border-top: 1px solid var(--line); margin-top: 64px; padding-top: 20px; font-family: var(--mono); font-size: 11px; color: var(--faint); display: flex; gap: 24px; flex-wrap: wrap; }
+
+    @media (max-width: 860px) { .finding-row { grid-template-columns: 1fr; } .timing-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 600px) { .wrap { padding: 24px 16px 64px; } .stats { flex-direction: column; } .ref-lean { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<input class="vh" type="radio" name="theme" id="theme-dark" checked>
+<input class="vh" type="radio" name="theme" id="theme-light">
+<div class="wrap">
+
+  <div class="theme-switch">
+    <div class="theme-seg">
+      <label for="theme-dark">Dark</label>
+      <label for="theme-light">Light</label>
+    </div>
+  </div>
+
+  <p class="eyebrow">Motion Audit · design-motion-principles</p>
+  <h1 class="title">hcc-services — Motion Inventory &amp; Opportunities</h1>
+  <p class="lede">Hack Club Curaçao marketing/agency landing page. Vanilla HTML + CSS + JS, IntersectionObserver reveals, rAF parallax, scroll-synced process section. Weighting: Jhey primary · Jakub secondary · Emil selective.</p>
+  <div class="meta-row">
+    <span>Stack: Vanilla HTML · CSS · JS</span>
+    <span>Date: 2026-06-14</span>
+    <span>Lens: Jhey → Jakub → Emil</span>
+  </div>
+  <div class="stats">
+    <a href="#rec-crit" class="stat-pill stat-crit"><span class="num">2</span><span class="lbl">Critical</span></a>
+    <a href="#rec-imp"  class="stat-pill stat-imp"><span class="num">2</span><span class="lbl">Important</span></a>
+    <a href="#rec-opp"  class="stat-pill stat-opp"><span class="num">5</span><span class="lbl">Opportunities</span></a>
+  </div>
+
+  <section class="assessment">
+    <span class="mono-label">Overall</span>
+    <p>The motion foundation is genuinely solid — spring curves throughout, GPU-safe animations, <code>prefers-reduced-motion</code> handled in both CSS and JS, a satisfying page-transition wipe, and a hero glow parallax that adds tactile depth. The gaps are expressiveness: an infinite opacity blink on the live dot is the single most recognisable AI-slop motion tell, and every card on the page enters identically regardless of hierarchy. Fixing those two — plus staggering the process icon path draws — lifts the motion quality from "competent" to "distinctly ours."</p>
+  </section>
+
+  <p class="section-head">01 · Lens Summary</p>
+  <table class="lens-table">
+    <thead><tr><th>Lens</th><th>Verdict</th><th>One-line read</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Jhey Tompkins</strong><span class="weight-chip">Primary</span></td><td><span class="verdict-dot v-mixed"></span>Mixed</td><td>Strong bones, missing personality — a teen-run creative studio should feel more alive than this.</td></tr>
+      <tr><td><strong>Jakub Krehel</strong><span class="weight-chip">Secondary</span></td><td><span class="verdict-dot v-mixed"></span>Mixed</td><td>Blur + spring enters are correct; uniform 0.9s and identical hover lifts kill hierarchy.</td></tr>
+      <tr><td><strong>Emil Kowalski</strong><span class="weight-chip">Selective</span></td><td><span class="verdict-dot v-strong"></span>Strong</td><td>Nav, forms, and high-frequency interactions well-restrained. IntersectionObserver one-shot is correct.</td></tr>
+    </tbody>
+  </table>
+
+  <p class="section-head">02 · Where the Timings Land</p>
+  <div class="timing-grid">
+    <div class="timing-svg-wrap">
+      <svg viewBox="0 0 520 210" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <style>
+          .tb { font-family: 'Geist Mono', monospace; font-size: 9px; fill: oklch(0.505 0.008 255); letter-spacing: 0.08em; }
+          .tn { font-family: 'Geist Mono', monospace; font-size: 9px; fill: oklch(0.155 0.006 255); font-weight: 600; }
+        </style>
+        <rect x="30" y="18" width="120" height="140" fill="oklch(0.745 0.135 152 / 0.07)"/>
+        <rect x="150" y="18" width="130" height="140" fill="oklch(0.745 0.135 152 / 0.07)"/>
+        <rect x="280" y="18" width="120" height="140" fill="oklch(0.805 0.125 78 / 0.07)"/>
+        <rect x="400" y="18" width="100" height="140" fill="oklch(0.655 0.185 25 / 0.07)"/>
+        <line x1="30" y1="158" x2="500" y2="158" stroke="oklch(0.95 0.01 255 / 0.12)" stroke-width="1"/>
+        <text x="90"  y="13" class="tb" text-anchor="middle">INSTANT / RESPONSIVE</text>
+        <text x="340" y="13" class="tb" text-anchor="middle">DELIBERATE</text>
+        <text x="450" y="13" class="tb" text-anchor="middle">SLUGGISH</text>
+        <text x="30"  y="174" class="tb" text-anchor="middle">0</text>
+        <text x="150" y="174" class="tb" text-anchor="middle">100ms</text>
+        <text x="280" y="174" class="tb" text-anchor="middle">300ms</text>
+        <text x="400" y="174" class="tb" text-anchor="middle">500ms</text>
+        <text x="500" y="174" class="tb" text-anchor="middle">600+</text>
+        <!-- 1: page trans 750ms -->
+        <circle cx="452" cy="55" r="11" fill="oklch(0.805 0.125 78)"/><text x="452" y="59" class="tn" text-anchor="middle">1</text>
+        <!-- 2: reveal 900ms sluggish -->
+        <circle cx="478" cy="82" r="11" fill="oklch(0.655 0.185 25)"/><text x="478" y="86" class="tn" text-anchor="middle">2</text>
+        <!-- 3: nav hover 250ms -->
+        <circle cx="200" cy="55" r="11" fill="oklch(0.745 0.135 152)"/><text x="200" y="59" class="tn" text-anchor="middle">3</text>
+        <!-- 4: card hover 400-500ms -->
+        <circle cx="320" cy="82" r="11" fill="oklch(0.805 0.125 78)"/><text x="320" y="86" class="tn" text-anchor="middle">4</text>
+        <!-- 5: process step 550ms -->
+        <circle cx="346" cy="120" r="11" fill="oklch(0.745 0.135 152)"/><text x="346" y="124" class="tn" text-anchor="middle">5</text>
+        <!-- 6: counter 1600ms off-chart hollow dashed -->
+        <circle cx="496" cy="120" r="11" fill="none" stroke="oklch(0.505 0.008 255)" stroke-dasharray="3 2" stroke-width="1.5"/>
+        <text x="496" y="124" class="tb" text-anchor="middle">6</text>
+        <!-- 7: blink infinite, hollow red dashed at 0 -->
+        <circle cx="30" cy="120" r="11" fill="none" stroke="oklch(0.655 0.185 25)" stroke-dasharray="3 2" stroke-width="1.5"/>
+        <text x="30" y="124" class="tb" fill="oklch(0.655 0.185 25)" text-anchor="middle">7</text>
+        <text x="30" y="196" class="tb" fill="oklch(0.655 0.185 25)" text-anchor="middle">∞</text>
+      </svg>
+    </div>
+    <div class="timing-key">
+      <div class="timing-key-item"><span class="timing-key-num">1</span><div class="timing-key-text"><strong>Page transition wipe</strong>750ms · cubic-bezier(0.65,0,0.35,1)</div></div>
+      <div class="timing-key-item"><span class="timing-key-num">2</span><div class="timing-key-text"><strong>Reveal enters</strong>900ms — sluggish zone</div></div>
+      <div class="timing-key-item"><span class="timing-key-num">3</span><div class="timing-key-text"><strong>Nav hover</strong>250ms · spring ✓</div></div>
+      <div class="timing-key-item"><span class="timing-key-num">4</span><div class="timing-key-text"><strong>Card hovers</strong>400–500ms · spring</div></div>
+      <div class="timing-key-item"><span class="timing-key-num">5</span><div class="timing-key-text"><strong>Process step reveal</strong>550ms · spring ✓</div></div>
+      <div class="timing-key-item"><span class="timing-key-num">6</span><div class="timing-key-text"><strong>Counter easing</strong>1600ms — ok (rare)</div></div>
+      <div class="timing-key-item"><span class="timing-key-num">7</span><div class="timing-key-text"><strong>Blink (∞ loop)</strong>Should be one-shot</div></div>
+      <div class="timing-off"><strong>What's off:</strong> Reveal (#2) at 0.9s feels slow on fast scroll. Target 600ms. Blink (#7) should not loop at all.</div>
+    </div>
+  </div>
+
+  <!-- Jhey -->
+  <p class="section-head">03 · Jhey Tompkins — Experimentation &amp; Delight&nbsp;<span style="font-size:10px;letter-spacing:0;text-transform:none;color:var(--muted)">(Primary)</span></p>
+  <div class="lens-sec">
+    <div class="lens-sec__verdict"><span class="verdict-dot v-mixed"></span>Mixed — technically capable but creative personality is missing.</div>
+    <div class="lens-block">
+      <span class="mono-label">What's working well</span>
+      <ul class="lens-list good">
+        <li>Page transition wipe is brand-red and expressive — exactly the kind of rare-trigger moment Jhey would keep as-is. <code>style.css:65</code></li>
+        <li>Hero glow parallax with lerp-smoothed rAF is a satisfying ambient layer. <code>main.js:~200</code></li>
+        <li>Process SVG line-draw concept is strong — drawing icons per step is a playful, original idea. <code>main.js:171</code></li>
+        <li>Marquee hover-pause is a correct small detail. <code>style.css:445</code></li>
+      </ul>
+    </div>
+    <div class="lens-block">
+      <span class="mono-label">Issues to address</span>
+      <div class="finding-row" data-sev="crit">
+        <div class="finding-row__prose">
+          <div class="find-tags"><span class="sev-chip crit">Critical</span><span class="lens-chip">Jhey · Jakub</span></div>
+          <h4 class="find-title">Infinite blink pulse on the hero live dot</h4>
+          <div class="find-body">
+            <p><span class="label">What</span>The <code>.hero-eyebrow-dot</code> loops <code>opacity 1→0.3→1</code> at 1.4s forever via <code>@keyframes blink</code>. This is the single most recognisable AI-slop motion pattern — any infinite opacity pulse on a status indicator reads as generated, not designed.</p>
+            <p><span class="label">Why it matters</span>Jhey: "what could this become?" A live dot should pop in with spring personality and settle. The infinite loop is lazy; the spring settle is expressive. Jakub: "if users consciously notice the animation it's too much" — and they will, every page load, forever.</p>
+            <div class="fix"><p><span class="label">Recommended motion</span>Replace <code>@keyframes blink</code> infinite with a one-shot spring-pop using <code>animation-fill-mode: forwards</code>. The dot appears, overshoots to 118% scale, snaps back, and settles. Demo shows the spring pop (looping here for preview only — in production use <code>forwards</code>).</p></div>
+            <p class="find-loc"><code>style.css:323 (@keyframes blink) · style.css:329 (animation declaration)</code></p>
+          </div>
+        </div>
+        <div class="demo">
+          <input class="vh" type="radio" name="st1" id="st1-a" checked>
+          <input class="vh" type="radio" name="st1" id="st1-l">
+          <input class="vh" type="radio" name="st1" id="st1-d">
+          <div class="demo__bar">
+            <div class="demo__meta"><span class="demo__title">Spring-pop settle (one-shot)</span><span class="demo__timing">600ms · cubic-bezier(0.22,1,0.36,1)</span></div>
+            <div class="demo__controls"><div class="seg"><label for="st1-a">Auto</label><label for="st1-l">Light</label><label for="st1-d">Dark</label></div><span class="demo__loop">↻</span></div>
+          </div>
+          <div class="demo__stage">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div class="demo-1__mt ui-dot"></div>
+              <span style="font-size:13px;color:var(--st-fg);font-family:var(--sans);">Open for projects</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="finding-row" data-sev="crit">
+        <div class="finding-row__prose">
+          <div class="find-tags"><span class="sev-chip crit">Critical</span><span class="lens-chip">Jakub · Jhey</span></div>
+          <h4 class="find-title">Uniform 0.9s reveal on 20+ elements — zero visual hierarchy</h4>
+          <div class="find-body">
+            <p><span class="label">What</span>Every <code>.reveal</code> element uses identical <code>opacity:0 + translateY(28px) + blur(4px)</code> at 0.9s — hero stats, service cards, testimonials, work cards, section labels, all the same. Blur and spring curve are correct; the uniformity erases hierarchy.</p>
+            <p><span class="label">Why it matters</span>Jakub: "using the same animation everywhere" kills context-sensitivity. Utility labels should be faster (300ms, 8px) than headings (450ms, 16px) than card grids (600ms, 24px). Right now nothing feels intentional — it's all one flat reveal plane.</p>
+            <div class="fix"><p><span class="label">Recommended motion</span>Keep the blur+spring recipe, vary duration and translateY by element tier. The JS stagger system (80ms per sibling) already works — just tighten the base durations. Add a CSS custom property <code>--reveal-dur</code> per element type so the three tiers can be set in one place.</p></div>
+            <p class="find-loc"><code>style.css:492–503 · main.js:128–147</code></p>
+          </div>
+        </div>
+        <div class="demo">
+          <input class="vh" type="radio" name="st2" id="st2-a" checked>
+          <input class="vh" type="radio" name="st2" id="st2-l">
+          <input class="vh" type="radio" name="st2" id="st2-d">
+          <div class="demo__bar">
+            <div class="demo__meta"><span class="demo__title">Hierarchical stagger (varied depth + duration)</span><span class="demo__timing">300–600ms · 120ms stagger</span></div>
+            <div class="demo__controls"><div class="seg"><label for="st2-a">Auto</label><label for="st2-l">Light</label><label for="st2-d">Dark</label></div><span class="demo__loop">↻</span></div>
+          </div>
+          <div class="demo__stage">
+            <div style="display:flex;gap:10px;align-items:flex-end;width:100%;">
+              <div class="demo-2__c1 ui-card" style="flex:1;padding:10px 12px;"><div class="ui-label" style="margin-bottom:5px">Service</div><div style="font-size:12px;color:var(--st-fg);">Card 1</div></div>
+              <div class="demo-2__c2 ui-card" style="flex:1;padding:10px 12px;"><div class="ui-label" style="margin-bottom:5px">Service</div><div style="font-size:12px;color:var(--st-fg);">Card 2</div></div>
+              <div class="demo-2__c3 ui-card" style="flex:1;padding:10px 12px;"><div class="ui-label" style="margin-bottom:5px">Service</div><div style="font-size:12px;color:var(--st-fg);">Card 3</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="lens-block">
+      <span class="mono-label">Opportunities</span>
+      <ul class="lens-list opp">
+        <li>Hero glow could use <code>@property --glow-x, --glow-y</code> to animate the gradient origin directly — richer than translating a fixed circle, Jhey's signature technique. <code>style.css:264</code></li>
+        <li>Marquee could accelerate when the user scrolls in its direction, slow when scrolling against — <code>animation-play-state</code> toggle keyed to scroll velocity. <code>style.css:445</code></li>
+        <li>Service card arrow (<code>.service-arrow</code>) rotates -45deg now — push it: add a diagonal translate + scale pulse on the arrow circle for internal kinetic tension. <code>style.css:586</code></li>
+      </ul>
+    </div>
+    <div class="lens-take"><strong>Through Jhey's lens:</strong> The page has the right ingredients but plays it too safe for the brand it represents. Hack Club Curaçao is a creative teen studio — the motion should reflect that. Fixing the blink pulse and varying the reveal hierarchy are the two moves that make the site feel designed rather than generated.</div>
+  </div>
+
+  <!-- Jakub -->
+  <p class="section-head">04 · Jakub Krehel — Production Polish&nbsp;<span style="font-size:10px;letter-spacing:0;text-transform:none;color:var(--muted)">(Secondary)</span></p>
+  <div class="lens-sec">
+    <div class="lens-sec__verdict"><span class="verdict-dot v-mixed"></span>Mixed — correct recipe, wrong application of context.</div>
+    <div class="lens-block">
+      <span class="mono-label">What's working well</span>
+      <ul class="lens-list good">
+        <li>Blur is already in the <code>.reveal</code> recipe — Jakub's "materialise" feel is correctly implemented. <code>style.css:494</code></li>
+        <li>Spring curves (<code>cubic-bezier(.22,1,.36,1)</code>) used consistently across process dots, icon draws, step reveals. <code>style.css:844</code></li>
+        <li>Button hover uses <code>translateY(-2px)</code> + shadow — correctly subtle, doesn't demand attention. <code>style.css:222</code></li>
+        <li>Nav links now use spring curves after this session's transit fixes. <code>style.css:186</code></li>
+      </ul>
+    </div>
+    <div class="lens-block">
+      <span class="mono-label">Issues to address</span>
+      <div class="finding-row" data-sev="imp">
+        <div class="finding-row__prose">
+          <div class="find-tags"><span class="sev-chip imp">Important</span><span class="lens-chip">Jakub</span></div>
+          <h4 class="find-title">All card hovers use identical translateY(-3px)</h4>
+          <div class="find-body">
+            <p><span class="label">What</span>Service cards, testimonials, work cards, team cards all hover with <code>transform: translateY(-3px)</code>. Jakub's rule: "context should drive timing and movement choices" — a featured bento card and a supporting testimonial should not feel identical on hover.</p>
+            <p><span class="label">Why it matters</span>The user can't feel the difference in importance between a primary card and a supporting one. The bento layout creates visual hierarchy via sizing — the hover should reinforce it, not flatten it.</p>
+            <div class="fix"><p><span class="label">Recommended motion</span>Featured/primary cards: <code>translateY(-7px) scale(1.01)</code> + stronger shadow. Supporting cards: <code>translateY(-2px)</code>, no scale. Work thumbnail cards (image-heavy): no lift, just border glow. Demo shows featured vs supporting contrast.</p></div>
+            <p class="find-loc"><code>style.css:559 (service) · style.css:736 (testimonial) · style.css:621 (work) · style.css:667 (team)</code></p>
+          </div>
+        </div>
+        <div class="demo">
+          <input class="vh" type="radio" name="st3" id="st3-a" checked>
+          <input class="vh" type="radio" name="st3" id="st3-l">
+          <input class="vh" type="radio" name="st3" id="st3-d">
+          <div class="demo__bar">
+            <div class="demo__meta"><span class="demo__title">Featured vs supporting lift</span><span class="demo__timing">400ms · cubic-bezier(0.22,1,0.36,1)</span></div>
+            <div class="demo__controls"><div class="seg"><label for="st3-a">Auto</label><label for="st3-l">Light</label><label for="st3-d">Dark</label></div><span class="demo__loop">↻</span></div>
+          </div>
+          <div class="demo__stage">
+            <div style="display:flex;gap:12px;align-items:flex-end;width:100%;">
+              <div class="demo-3__feat ui-card" style="flex:2;padding:18px 14px;"><div class="ui-label" style="margin-bottom:5px">Featured</div><div style="font-size:12px;color:var(--st-fg);">Pages That Print Money</div></div>
+              <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
+                <div class="demo-3__sup ui-card" style="padding:9px 10px;"><div style="font-size:11px;color:var(--st-fg);">Supporting</div></div>
+                <div class="demo-3__sup ui-card" style="padding:9px 10px;"><div style="font-size:11px;color:var(--st-fg);">Supporting</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="finding-row" data-sev="imp">
+        <div class="finding-row__prose">
+          <div class="find-tags"><span class="sev-chip imp">Important</span><span class="lens-chip">Jhey · Jakub</span></div>
+          <h4 class="find-title">Process icon paths draw simultaneously — stagger wasted</h4>
+          <div class="find-body">
+            <p><span class="label">What</span>All paths in each process SVG icon receive the same <code>stroke-dashoffset</code> transition simultaneously. The icon has 2–4 paths; they all appear at once instead of assembling sequentially.</p>
+            <p><span class="label">Why it matters</span>The sequential line-draw is the most expressive moment in the process section. Drawing all paths at the same frame collapses a rich "building" feeling into a simple reveal. This is the single highest-impact motion upgrade available for minimal code change.</p>
+            <div class="fix"><p><span class="label">Recommended motion</span>Add <code>transitionDelay</code> per path index in the JS animation loop. Each subsequent path gets +180ms delay, so the icon assembles itself piece by piece. 4 paths = 0ms, 180ms, 360ms, 540ms. Demo shows 4-path sequential draw.</p></div>
+            <p class="find-loc"><code>main.js:155–175</code></p>
+          </div>
+        </div>
+        <div class="demo">
+          <input class="vh" type="radio" name="st4" id="st4-a" checked>
+          <input class="vh" type="radio" name="st4" id="st4-l">
+          <input class="vh" type="radio" name="st4" id="st4-d">
+          <div class="demo__bar">
+            <div class="demo__meta"><span class="demo__title">Staggered path draw (4 paths, 180ms apart)</span><span class="demo__timing">550ms each · cubic-bezier(0.22,1,0.36,1)</span></div>
+            <div class="demo__controls"><div class="seg"><label for="st4-a">Auto</label><label for="st4-l">Light</label><label for="st4-d">Dark</label></div><span class="demo__loop">↻</span></div>
+          </div>
+          <div class="demo__stage">
+            <svg viewBox="0 0 24 24" width="80" height="80" fill="none">
+              <path class="demo-4__p1" d="M12 3l7 3v5c0 4.5-3 8-7 10" stroke="var(--st-fg)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="100" stroke-dashoffset="100"/>
+              <path class="demo-4__p2" d="M5 11V6l7-3" stroke="var(--st-fg)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="100" stroke-dashoffset="100"/>
+              <path class="demo-4__p3" d="M12 21c-4-2-7-5.5-7-10" stroke="var(--st-fg)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="100" stroke-dashoffset="100"/>
+              <path class="demo-4__p4" d="M9 12l2 2 4-4" stroke="var(--st-fg)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="100" stroke-dashoffset="100"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="lens-block">
+      <span class="mono-label">Opportunities</span>
+      <ul class="lens-list opp">
+        <li>Work card image zoom at 0.7s feels sluggish for a hover — reduce to 400ms for snappier feedback. <code>style.css:643</code></li>
+        <li>Mobile nav overlay could materialise with <code>backdrop-filter: blur(0) → blur(24px)</code> for a physical feel — currently snaps to full blur. <code>style.css:~1290</code></li>
+      </ul>
+    </div>
+    <div class="lens-take"><strong>Through Jakub's lens:</strong> The technical foundations are solid — spring curves, blur in enters, GPU-safe properties, correct accessibility handling. The two gaps are context-blindness (every card lifts identically) and the wasted icon stagger opportunity. Both are quick wins with immediately perceptible quality uplift.</div>
+  </div>
+
+  <!-- Emil -->
+  <p class="section-head">05 · Emil Kowalski — Restraint &amp; Speed&nbsp;<span style="font-size:10px;letter-spacing:0;text-transform:none;color:var(--muted)">(Selective)</span></p>
+  <div class="lens-sec">
+    <div class="lens-sec__verdict"><span class="verdict-dot v-strong"></span>Strong — high-frequency and keyboard interactions correctly unanimated.</div>
+    <div class="lens-block">
+      <span class="mono-label">What's working well</span>
+      <ul class="lens-list good">
+        <li>IntersectionObserver fires once per element — one-shot <code>.visible</code> class, <code>data-counted</code> guard on counter. Correct for scroll-driven marketing content. <code>main.js:143</code></li>
+        <li><code>prefers-reduced-motion</code> kills animations in CSS (3 blocks) and JS (<code>reducedMotion</code> check), plus instantly marks all reveals visible. Correct dual-layer pattern. <code>main.js:8 · style.css:81</code></li>
+        <li>Form input transitions are short (200ms) — correct for high-frequency focus/blur events. <code>style.css:1073</code></li>
+        <li>No animation on keyboard focus of nav links — Emil's keyboard rule respected. <code>style.css:184</code></li>
+        <li>Counter easing uses rAF with ease-out cubic — GPU-safe, and 1600ms is contextually fine for a rarely-triggered counting moment. <code>main.js:264</code></li>
+      </ul>
+    </div>
+    <div class="lens-block">
+      <span class="mono-label">Issues to address</span>
+      <p class="lens-empty">No issues found at this severity level through Emil's lens.</p>
+    </div>
+    <div class="lens-block">
+      <span class="mono-label">Opportunities</span>
+      <ul class="lens-list opp">
+        <li>Reveal transition at 0.9s could drop to 0.6s — still polished under Jakub/Jhey framing but less sluggish on fast scroll. <code>style.css:495</code></li>
+        <li><code>will-change: opacity, transform</code> on <code>.step</code> elements could be set to <code>auto</code> after the step becomes <code>.active</code> to free GPU memory. <code>style.css:878</code></li>
+      </ul>
+    </div>
+    <div class="lens-take"><strong>Through Emil's lens:</strong> This is where the site earns its strongest marks. High-frequency interactions are clean, form transitions are short, one-shot observers are used correctly, and <code>prefers-reduced-motion</code> is handled properly at both layers. Emil's restraint principles are well-embedded where they matter most.</div>
+  </div>
+
+  <!-- Recs -->
+  <p class="section-head">06 · Combined Recommendations</p>
+  <div class="rec-section" id="rec-crit">
+    <div class="tier-label crit">Critical · Must Fix</div>
+    <table class="rec-table">
+      <thead><tr><th></th><th>Issue</th><th>File</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td>🔴</td><td class="issue">Infinite blink pulse on hero live dot</td><td><code>style.css:323</code></td><td>Replace <code>@keyframes blink</code> infinite with one-shot spring-pop (<code>animation-fill-mode: forwards</code>)</td></tr>
+        <tr><td>🔴</td><td class="issue">Uniform 0.9s reveal on 20+ elements</td><td><code>style.css:492</code></td><td>Tier reveals: labels 300ms 8px, headings 450ms 16px, cards 600ms 24px. JS stagger stays as-is.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="rec-section" id="rec-imp">
+    <div class="tier-label imp">Important · Should Fix</div>
+    <table class="rec-table">
+      <thead><tr><th></th><th>Issue</th><th>File</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td>🟡</td><td class="issue">All card hovers use identical translateY(-3px)</td><td><code>style.css:559 621 667 736</code></td><td>Featured: translateY(-7px) scale(1.01). Supporting: translateY(-2px). Work thumbs: border glow only.</td></tr>
+        <tr><td>🟡</td><td class="issue">Process icon paths draw simultaneously</td><td><code>main.js:171</code></td><td>Add <code>transitionDelay</code> per path index: 0, 180, 360, 540ms in the icon animation loop.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="rec-section" id="rec-opp">
+    <div class="tier-label opp">Opportunities · Could Enhance</div>
+    <table class="rec-table">
+      <thead><tr><th></th><th>Enhancement</th><th>Where</th><th>Impact</th></tr></thead>
+      <tbody>
+        <tr><td>🟢</td><td class="issue">Hero glow via <code>@property</code></td><td><code>style.css:264</code></td><td>Animate gradient origin directly — richer motion, Jhey signature technique</td></tr>
+        <tr><td>🟢</td><td class="issue">Marquee scroll-velocity response</td><td><code>style.css:445</code></td><td>Accelerate/slow based on scroll direction — kinetic energy</td></tr>
+        <tr><td>🟢</td><td class="issue">Service arrow internal kinetic tension</td><td><code>style.css:586</code></td><td>Translate + scale arrow circle separately on hover for Jakub-style depth</td></tr>
+        <tr><td>🟢</td><td class="issue">Reveal duration 0.9s → 0.6s</td><td><code>style.css:495</code></td><td>Less sluggish on fast scroll; polish preserved</td></tr>
+        <tr><td>🟢</td><td class="issue">Nav overlay backdrop blur-in</td><td><code>style.css:~1290</code></td><td>Materialise mobile nav with blur(0)→blur(24px)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="ref-summary">
+    <span class="mono-label">07 · Lens Reference Summary</span>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:16px"><strong style="color:var(--paper)">Lens referenced most: Jakub Krehel — Production Polish.</strong> Both critical findings and both important findings reduce to Jakub's context-sensitivity principle. Jhey surfaces the largest expressive gap (blink → spring pop, icon stagger). Emil validates what's already working well.</p>
+    <div class="ref-lean">
+      <div class="ref-lean-item"><strong>To lean more Emil</strong>Cut all hover durations to ≤200ms, reduce reveal blur duration to 400ms, skip the card-hover differentiation in favour of border-only feedback.</div>
+      <div class="ref-lean-item"><strong>To lean more Jakub</strong>Fix the two Important findings first (hover context + icon stagger). These are highest-polish / lowest-risk changes. Then address the 0.9s reveal duration.</div>
+      <div class="ref-lean-item"><strong>To lean more Jhey</strong>Spring-pop the blink dot, add <code>@property</code> to the hero glow, give the service arrow diagonal kinetic tension, add a magnetic hover to the primary CTA.</div>
+      <div class="ref-lean-item"><strong>Accessibility status ✓</strong><code>prefers-reduced-motion</code> in CSS (3 blocks) + JS reducedMotion guard. Counter fires once. No vestibular triggers identified.</div>
+    </div>
+  </div>
+
+  <footer>
+    <span>hcc-services</span>
+    <span>🔴 2 Critical · 🟡 2 Important · 🟢 5 Opportunities</span>
+    <span>design-motion-principles · 2026-06-14</span>
+  </footer>
+</div>
+</body>
+</html>

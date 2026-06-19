@@ -12,24 +12,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const cursor = document.createElement('div');
     cursor.className = 'cursor';
     cursor.setAttribute('aria-hidden', 'true');
-    cursor.innerHTML = '<div class="cursor-ring"></div><div class="cursor-dot"></div>';
+    cursor.innerHTML = '<div class="cursor-dot"></div>';
     document.body.appendChild(cursor);
 
-    const ring = cursor.querySelector('.cursor-ring');
     const dot = cursor.querySelector('.cursor-dot');
-    let mx = 0, my = 0, rx = 0, ry = 0;
 
     document.addEventListener('mousemove', e => {
-      mx = e.clientX; my = e.clientY;
-      dot.style.left = mx + 'px'; dot.style.top = my + 'px';
+      dot.style.left = e.clientX + 'px'; dot.style.top = e.clientY + 'px';
     });
-
-    (function animRing() {
-      rx += (mx - rx) * 0.12;
-      ry += (my - ry) * 0.12;
-      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
-      requestAnimationFrame(animRing);
-    })();
 
     const hoverables = 'a, button, .service-card, .plan, .step, .work-card, .filter-btn, .team-card, input, textarea, select, .faq-question';
     document.querySelectorAll(hoverables).forEach(el => {
@@ -137,71 +127,203 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
+    const revealChecks = el => el.querySelectorAll('.np-check').forEach(c => c.classList.add('revealed'));
+
     if (reducedMotion) {
-      reveals.forEach(el => el.classList.add('visible'));
+      reveals.forEach(el => { el.classList.add('visible'); revealChecks(el); });
     } else {
       const observer = new IntersectionObserver(entries => {
-        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+        entries.forEach(e => {
+          if (e.isIntersecting) { e.target.classList.add('visible'); revealChecks(e.target); }
+        });
       }, { threshold: 0.12 });
       reveals.forEach(el => observer.observe(el));
     }
   }
 
-  /* ---------- Process section: scroll-synced line-draw animation ---------- */
-  const processGrid = document.querySelector('.process-grid');
-  const processIcons = document.querySelectorAll('.process-visual .anim-icon');
-  const stepEls = document.querySelectorAll('.process-steps .step');
-  const dotEls = document.querySelectorAll('.process-dot');
-  if (processGrid && processIcons.length) {
-    const segments = processIcons.length;
+  /* ---------- Hero logo-mark + glow: hue-cycle only while scrolled into view ---------- */
+  const heroLogoMark = document.querySelector('.hero-logo-mark');
+  const heroGlowEl   = document.querySelector('.hero-glow');
+  const hueTargets   = [heroLogoMark, heroGlowEl].filter(Boolean);
+  if (hueTargets.length) {
+    if (reducedMotion) {
+      hueTargets.forEach(el => el.classList.add('in-view'));
+    } else {
+      const logoObserver = new IntersectionObserver(entries => {
+        entries.forEach(e => e.target.classList.toggle('in-view', e.isIntersecting));
+      }, { threshold: 0.1 });
+      hueTargets.forEach(el => logoObserver.observe(el));
+    }
+  }
+
+  /* ---------- Auto-pulse animated icons every ~2s (instead of hover-only) ---------- */
+  const pulseTargets = document.querySelectorAll('.icon-plug, .service-card, .testimonial-shell, .np-check');
+  if (pulseTargets.length && !reducedMotion) {
+    setInterval(() => {
+      const pt = document.getElementById('page-transition');
+      if (pt && (pt.classList.contains('pt-covering') || pt.classList.contains('pt-revealing'))) return;
+      pulseTargets.forEach((el, i) => {
+        setTimeout(() => {
+          el.classList.add('pulse');
+          setTimeout(() => el.classList.remove('pulse'), 700);
+        }, (i % 5) * 90); // slight stagger so a page full of icons doesn't pulse as one block
+      });
+    }, 2000);
+  }
+
+  /* ---------- Process section: scroll-synced line-draw + mobile carousel ---------- */
+  const processHeader  = document.querySelector('.process-header');
+  const processSteps   = document.querySelector('.process-steps');
+  const stepStack      = document.querySelector('.step-stack');
+  // Desktop icons (inside .process-visual) and mobile icons (inside .process-visual-mob)
+  const desktopIcons   = Array.from(document.querySelectorAll('.process-visual .anim-icon'));
+  const mobileIcons    = Array.from(document.querySelectorAll('.process-visual-mob .anim-icon'));
+  const stepEls        = document.querySelectorAll('.process-steps .step');
+  const dotEls         = document.querySelectorAll('.process-dot');
+  const isMobileProcess = () => window.matchMedia('(max-width: 900px)').matches;
+  const segments = Math.max(desktopIcons.length, mobileIcons.length, 1);
+
+  if (processHeader && processSteps && segments > 0) {
     let ticking = false;
 
-    // Lets progress (and so the first icon's draw-in) start ticking up
-    // slightly before the grid's top edge reaches the viewport top —
-    // i.e. while the "How It Works" heading above is still on screen —
-    // instead of staying frozen at 0 until the heading scrolls away.
-    const LEAD = 350;
+    const applyIconAnim = (icons, progress, segments, instant) => {
+      const w = 1 / segments;
+      icons.forEach((icon, i) => {
+        if (instant) {
+          // Mobile: snap to active icon with smooth CSS transition
+          const active = i === Math.min(segments - 1, Math.floor(progress * segments));
+          icon.style.transition = 'stroke-dashoffset .55s cubic-bezier(.22,1,.36,1), opacity .3s ease';
+          icon.style.strokeDashoffset = active ? '0' : '100';
+          icon.style.opacity = active ? '1' : '0';
+        } else {
+          // Desktop: magnetic draw-in / hold / erase
+          const local = (progress - i * w) / w;
+          let net = 0;
+          let pull = 0; // 0->1->0 bump used to overshoot-scale the icon as it snaps in
+          if (local > 0 && local < 1) {
+            if (local < 0.16) {
+              const t = local / 0.16;
+              net = 1 - Math.pow(1 - t, 4); // sharper, snappier "magnetic" pull-in
+              pull = Math.sin(t * Math.PI);
+            } else if (local < 0.58) {
+              net = 1;
+            } else {
+              const t = (local - 0.58) / 0.42;
+              net = 1 - Math.pow(t, 2.2);
+            }
+          }
+          net = Math.min(1, Math.max(0, net));
+          icon.style.strokeDashoffset = String(100 - net * 100);
+          icon.style.opacity = net > 0.02 ? '1' : '0';
+          icon.style.transform = `scale(${1 + pull * 0.16})`;
+        }
+      });
+    };
 
     const updateProcess = () => {
-      const rect = processGrid.getBoundingClientRect();
+      const mobile = isMobileProcess();
       const vh = window.innerHeight;
-      const scrollable = rect.height - vh;
-      let progress = scrollable > 0 ? (LEAD - rect.top) / (scrollable + LEAD) : 0;
-      progress = Math.min(1, Math.max(0, progress));
-      const activeIndex = Math.min(segments - 1, Math.floor(progress * segments));
 
-      // Each icon gets its own window with a gap before/after, so one
-      // fully erases (and the line returns to its shared starting point)
-      // before the next one starts drawing — no overlap.
-      const windowW = 0.8 / segments;          // active drawing window
-      const step = 1 / segments;               // window + gap per icon
-      processIcons.forEach((icon, i) => {
-        const start = i * step;
-        const local = (progress - start) / windowW;
-        let net = 0;
-        if (local > 0 && local < 1) {
-          if (local < 0.35) net = local / 0.35;            // draw in
-          else if (local < 0.6) net = 1;                    // hold
-          else net = 1 - (local - 0.6) / 0.4;               // erase out
+      if (mobile) {
+        // Mobile: progress is how far through process-steps we've scrolled
+        const navH = 64;
+        const visH = 48 / 100 * vh; // matches the 48vh sticky visual
+        const stickyOff = navH + visH;
+        const rect = processSteps.getBoundingClientRect();
+        const scrollable = rect.height - (vh - stickyOff);
+        const scrolled   = stickyOff - rect.top;
+        let progress = scrollable > 0 ? scrolled / scrollable : 0;
+        progress = Math.min(1, Math.max(0, progress));
+
+        const activeIndex = Math.min(segments - 1, Math.floor(progress * segments));
+        dotEls.forEach((dot, i) => dot.classList.toggle('active', i === activeIndex));
+        stepEls.forEach((step, i) => step.classList.toggle('active', i === activeIndex));
+
+        // Slide the step-stack horizontally
+        if (stepStack) {
+          const maxScroll = stepStack.scrollWidth - stepStack.clientWidth;
+          stepStack.scrollLeft = progress * maxScroll;
         }
-        net = Math.min(1, Math.max(0, net));
-        icon.style.strokeDashoffset = String(100 - net * 100);
-        icon.style.opacity = net > 0.02 ? '1' : '0';
-      });
 
-      stepEls.forEach((step, i) => step.classList.toggle('active', i === activeIndex));
-      dotEls.forEach((dot, i) => dot.classList.toggle('active', i === activeIndex));
+        applyIconAnim(mobileIcons, progress, segments, true);
+      } else {
+        // Desktop: sticky header sits at 72px, progress through steps below it
+        const headerH  = processHeader.getBoundingClientRect().height;
+        const stickyTop = 72 + headerH;
+        const rect      = processSteps.getBoundingClientRect();
+        const scrollable = rect.height - (vh - stickyTop);
+        const scrolled   = stickyTop - rect.top;
+        let progress = scrollable > 0 ? scrolled / scrollable : 0;
+        progress = Math.min(1, Math.max(0, progress));
+
+        const activeIndex = Math.min(segments - 1, Math.floor(progress * segments));
+        dotEls.forEach((dot, i) => dot.classList.toggle('active', i === activeIndex));
+        stepEls.forEach((step, i) => step.classList.toggle('active', i === activeIndex));
+
+        // Fade/rise each step based on proximity to focal point
+        const focalY = (stickyTop + vh) / 2;
+        stepEls.forEach(step => {
+          const r = step.getBoundingClientRect();
+          const center = r.top + r.height / 2;
+          const dist   = Math.abs(center - focalY);
+          const raw    = Math.max(0, 1 - dist / ((vh - stickyTop) * 0.55));
+          const fade   = Math.pow(raw, 0.5);
+          step.style.opacity   = String(Math.max(0.1, fade));
+          step.style.transform = `translateY(${(1 - fade) * 28}px)`;
+        });
+
+        applyIconAnim(desktopIcons, progress, segments, false);
+      }
+
       ticking = false;
     };
 
     updateProcess();
     window.addEventListener('scroll', () => {
-      if (!ticking) {
-        requestAnimationFrame(updateProcess);
-        ticking = true;
-      }
+      if (!ticking) { requestAnimationFrame(updateProcess); ticking = true; }
     }, { passive: true });
     window.addEventListener('resize', updateProcess);
+  }
+
+  /* ---------- Stat counter animation ---------- */
+  const countEls = document.querySelectorAll('[data-count]');
+  if (countEls.length) {
+    const countObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (!e.isIntersecting || e.target.dataset.counted) return;
+        e.target.dataset.counted = '1';
+        const target = parseInt(e.target.dataset.count, 10);
+        const suffix = e.target.dataset.suffix || '';
+        const start  = performance.now();
+        const dur    = 1600;
+        const tick = now => {
+          const t     = Math.min((now - start) / dur, 1);
+          const eased = 1 - Math.pow(1 - t, 3);
+          e.target.textContent = Math.round(eased * target) + suffix;
+          if (t < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      });
+    }, { threshold: 0.6 });
+    countEls.forEach(el => countObs.observe(el));
+  }
+
+  /* ---------- Hero glow mouse parallax ---------- */
+  const heroGlow = document.querySelector('.hero-glow');
+  const heroEl   = document.querySelector('.hero');
+  if (heroGlow && heroEl) {
+    let mx = 0, my = 0, tx = 0, ty = 0;
+    heroEl.addEventListener('mousemove', e => {
+      const r = heroEl.getBoundingClientRect();
+      mx = (e.clientX / r.width  - 0.5) * 48;
+      my = (e.clientY / r.height - 0.5) * 28;
+    }, { passive: true });
+    (function glowParallax() {
+      tx += (mx - tx) * 0.06;
+      ty += (my - ty) * 0.06;
+      heroGlow.style.transform = `translate(${tx}px, ${ty}px)`;
+      requestAnimationFrame(glowParallax);
+    })();
   }
 
   /* ---------- Service card mouse-follow glow ---------- */
@@ -318,24 +440,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (sessionStorage.getItem('pt-active')) {
     sessionStorage.removeItem('pt-active');
+    document.body.classList.add('pt-navigating');
     panel.style.transform = 'translateY(0)';
     overlay.style.pointerEvents = 'all';
     requestAnimationFrame(() => requestAnimationFrame(() => {
       overlay.classList.add('pt-revealing');
       setTimeout(() => {
         overlay.classList.remove('pt-revealing');
+        document.body.classList.remove('pt-navigating');
         panel.style.transform = 'translateY(calc(100% + 180px))';
         overlay.style.pointerEvents = 'none';
       }, DURATION + 60);
     }));
   }
 
-  // Fix: when a page is restored from the back/forward cache (bfcache), this
-  // script does NOT re-run, so an overlay left mid-"pt-covering" (about to
-  // navigate away) stays stuck covering the whole viewport in red forever.
-  // Reset it on bfcache restore.
+  // Reset on bfcache restore — the script doesn't re-run, so an overlay
+  // stuck mid-cover would freeze the page in red. Also fires on any pageshow
+  // so we always start clean if somehow the flag wasn't consumed.
   window.addEventListener('pageshow', function (e) {
     if (e.persisted) {
+      navigating = false;
       overlay.classList.remove('pt-covering', 'pt-revealing');
       overlay.style.pointerEvents = 'none';
       panel.style.transform = 'translateY(calc(100% + 180px))';
@@ -343,7 +467,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Guard: ignore rapid second clicks while the cover animation is playing.
+  let navigating = false;
+
   document.addEventListener('click', function (e) {
+    if (navigating) return;
     const link = e.target.closest('a');
     if (!link) return;
     const href = link.getAttribute('href');
@@ -363,8 +491,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isExternal || isAnchorOnly || isSpecial || isSamePage) return;
 
     e.preventDefault();
+    navigating = true;
     overlay.style.pointerEvents = 'all';
     overlay.classList.add('pt-covering');
+    // Heavy filter-based animations (hue-rotate on the logo/glow) compete with the
+    // compositor during the cover/reveal — pause them so the panel slide stays smooth.
+    document.body.classList.add('pt-navigating');
     sessionStorage.setItem('pt-active', '1');
     setTimeout(() => { window.location.href = href; }, DURATION);
   });

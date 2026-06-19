@@ -1,0 +1,29 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# Temp / build output (for when you migrate to Astro/Next)
+node_modules/
+dist/
+.astro/
+.next/
+out/
+
+# Env files
+.env
+.env.local
+.env.*.local
